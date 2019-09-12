@@ -54,6 +54,7 @@ public class Main extends Application {
 
         // Creates the object for the menu bar at the top
         MenuBar menubar = new MenuBar();
+        //
         // Creates the pull down tab "File" for the menu bar
         Menu menu_file = new Menu("File");
         // Creates 3 new options and adds them under the menu -> file tab in sequence
