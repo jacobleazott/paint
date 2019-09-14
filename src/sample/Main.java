@@ -2,7 +2,7 @@ package sample;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.scene.Scene;
+import javafx.scene.*;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -12,9 +12,13 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,14 +39,43 @@ import javafx.scene.input.ScrollEvent;
 import javafx.stage.Stage;
 import javafx.application.Application;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.stage.Screen;
+import javafx.stage.Stage;
+import javafx.application.Application;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
+import javafx.application.Application;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.ArcType;
+import javafx.stage.Stage;
+import javafx.application.Application;
+import javafx.beans.binding.Bindings;
+import javafx.geometry.HPos;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 public class Main extends Application {
 
     private String version_number = "Pain(t) V.1.0.1";
+    private Image img;
 
     public void start(Stage primaryStage) throws Exception{
         // Sets the title of the window
@@ -88,28 +121,39 @@ public class Main extends Application {
         menu_file_save.setDisable(true);
 
         // Creates the grid layout where we can place images, buttons, and labels using grid functions
-        GridPane gridpane = new GridPane();
         // Image is displayed (even if null like on start) in the upper left corner of the window)
-        ImageView myImageView = new ImageView();
-        gridpane.add(myImageView, 0, 0);
 
-        //Wrapper for our layouts and special menu bars
-        VBox window = new VBox(menubar, gridpane);
+        //ImageView myImageView = new ImageView(img);
+        //gridpane.add(myImageView, 0, 0);
+
+
         // Adds the menu bar and the grid layout to our window
         //window.getChildren().add(menubar);
         //window.getChildren().add(gridpane);
 
 
         ////////////////////////////////////////////
+        Canvas canvas = new Canvas(0, 0);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.setLineWidth(1);
+
+
 
         BorderPane borderpane = new BorderPane();
+        borderpane.setCenter(canvas);
+        System.out.println(primaryStage.getWidth());
 
-
+        ScrollPane scrollpane = new ScrollPane(borderpane);
+        //scrollpane.set
 
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
         int window_startup_width = (int) (primaryScreenBounds.getWidth()/1.5);
         int window_startup_height = (int) (primaryScreenBounds.getHeight()/1.5);
         //////////////////////////////////////////////
+
+        //Wrapper for our layouts and special menu bars
+        VBox window = new VBox(menubar, scrollpane);
+
         // Uses the wrapper and given window starting sizes to create a scene which is yet another wrapper
 
         Scene main_scene = new Scene(window, window_startup_width, window_startup_height);
@@ -118,7 +162,13 @@ public class Main extends Application {
         // Displays the window for the user to finally see
         primaryStage.show();
 
-        final DoubleProperty zoomProperty = new SimpleDoubleProperty(200);
+        //Makes sure the border pane scales with the window and that the scrollbars scale properly as well
+        scrollpane.setFitToHeight(true);
+        scrollpane.setFitToWidth(true);
+        borderpane.prefWidthProperty().bind(main_scene.widthProperty());
+        borderpane.prefHeightProperty().bind(main_scene.heightProperty());
+
+        final DoubleProperty zoomProperty = new SimpleDoubleProperty(10);
         ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -126,8 +176,11 @@ public class Main extends Application {
         zoomProperty.addListener(new InvalidationListener() {
             @Override
             public void invalidated(Observable arg0) {
-                myImageView.setFitWidth(zoomProperty.get() * 4);
-                myImageView.setFitHeight(zoomProperty.get() * 3);
+
+                canvas.setScaleX(zoomProperty.get());
+                canvas.setScaleY(zoomProperty.get());
+                //img.setFitWidth(zoomProperty.get() * 4);
+               // myImageView.setFitHeight(zoomProperty.get() * 3);
             }
         });
 
@@ -141,7 +194,7 @@ public class Main extends Application {
                 }
             }
         });
-        myImageView.preserveRatioProperty().set(true);
+        //img.preserveRatioProperty().set(true);
         ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -154,8 +207,15 @@ public class Main extends Application {
             File filechooser_file = filechooser.showOpenDialog(null);
             // Tries to read and display the image selected
             try {
-                Image open_image = SwingFXUtils.toFXImage(ImageIO.read(filechooser_file), null);
-                myImageView.setImage(open_image);
+                //img = SwingFXUtils.toFXImage(ImageIO.read(filechooser_file), null);
+                InputStream io = new FileInputStream(filechooser_file);
+                img = new Image(io);
+                canvas.setHeight(img.getHeight());
+                canvas.setWidth(img.getWidth());
+                gc.drawImage(img, 0, 0);
+
+
+                //myImageView.setImage(open_image);
                 ////////////////////////////////////////////////////
                 System.out.println(primaryStage.getWidth());
                 System.out.println(primaryStage.getHeight());
@@ -167,8 +227,8 @@ public class Main extends Application {
                 }
                 */
                 // myImageView.setFitWidth(primaryStage.getWidth());
-                myImageView.setFitHeight(primaryStage.getHeight()*4/3);
-                myImageView.setFitWidth(primaryStage.getWidth());
+                //myImageView.setFitHeight(primaryStage.getHeight()*4/3);
+                //myImageView.setFitWidth(primaryStage.getWidth());
                 // We have opened an image therefore we can save it
                 menu_file_save.setDisable(false);
             }
@@ -196,7 +256,7 @@ public class Main extends Application {
             File filechooser_file = filechooser.showSaveDialog(null);
             try {
                 // Saves the image to the desired location using the appropriate filters available
-                ImageIO.write(SwingFXUtils.fromFXImage(myImageView.getImage(), null), "", filechooser_file);
+                ImageIO.write(SwingFXUtils.fromFXImage(img, null), "", filechooser_file);
                 // Possibly have this be displayed in the lower left corner of the program
                 System.out.println("Image Saved Successfully");
             }
@@ -207,6 +267,16 @@ public class Main extends Application {
         //Sets the action for the exit button to close the window
         menu_file_exit.setOnAction(event -> {
             Platform.exit();
+        });
+
+        canvas.setOnDragDetected(evt -> {
+            Node target = (Node) evt.getTarget();
+            while (target != canvas && target != null) {
+                target = target.getParent();
+            }
+            if (target != null) {
+                target.startFullDrag();
+            }
         });
 
     }
