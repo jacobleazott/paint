@@ -21,10 +21,28 @@ import java.util.List;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.ImageView;
 import javax.imageio.ImageIO;
+import javafx.application.Application;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.event.EventHandler;
+import javafx.scene.Scene;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.ScrollEvent;
+import javafx.stage.Stage;
+import javafx.application.Application;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
 
 public class Main extends Application {
 
-    private String version_number = "Pain(t) V.1.0.0";
+    private String version_number = "Pain(t) V.1.0.1";
 
     public void start(Stage primaryStage) throws Exception{
         // Sets the title of the window
@@ -81,12 +99,50 @@ public class Main extends Application {
         //window.getChildren().add(menubar);
         //window.getChildren().add(gridpane);
 
+
+        ////////////////////////////////////////////
+
+        BorderPane borderpane = new BorderPane();
+
+
+
+        Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
+        int window_startup_width = (int) (primaryScreenBounds.getWidth()/1.5);
+        int window_startup_height = (int) (primaryScreenBounds.getHeight()/1.5);
+        //////////////////////////////////////////////
         // Uses the wrapper and given window starting sizes to create a scene which is yet another wrapper
-        Scene main_scene = new Scene(window, 500, 500);
+
+        Scene main_scene = new Scene(window, window_startup_width, window_startup_height);
         // Applies our created scene to our default window
         primaryStage.setScene(main_scene);
         // Displays the window for the user to finally see
         primaryStage.show();
+
+        final DoubleProperty zoomProperty = new SimpleDoubleProperty(200);
+        ////////////////////////////////////////////////////////////////////////////////
+
+
+
+        zoomProperty.addListener(new InvalidationListener() {
+            @Override
+            public void invalidated(Observable arg0) {
+                myImageView.setFitWidth(zoomProperty.get() * 4);
+                myImageView.setFitHeight(zoomProperty.get() * 3);
+            }
+        });
+
+        window.addEventFilter(ScrollEvent.ANY, new EventHandler<ScrollEvent>() {
+            @Override
+            public void handle(ScrollEvent event) {
+                if (event.getDeltaY() > 0) {
+                    zoomProperty.set(zoomProperty.get() * 1.1);
+                } else if (event.getDeltaY() < 0) {
+                    zoomProperty.set(zoomProperty.get() / 1.1);
+                }
+            }
+        });
+        myImageView.preserveRatioProperty().set(true);
+        ////////////////////////////////////////////////////////////////////////////////
 
 
         // Eventually move these into their own .java to organize menu bar actions if more persist (they will)
@@ -100,9 +156,25 @@ public class Main extends Application {
             try {
                 Image open_image = SwingFXUtils.toFXImage(ImageIO.read(filechooser_file), null);
                 myImageView.setImage(open_image);
+                ////////////////////////////////////////////////////
+                System.out.println(primaryStage.getWidth());
+                System.out.println(primaryStage.getHeight());
+                /*
+                if (primaryStage.getWidth() >= primaryStage.getHeight()){
+                    if (myImageView.getFitWidth() >= myImageView.getFitHeight()){
+                        myImageView.setFitHeight()
+                    }
+                }
+                */
+                // myImageView.setFitWidth(primaryStage.getWidth());
+                myImageView.setFitHeight(primaryStage.getHeight()*4/3);
+                myImageView.setFitWidth(primaryStage.getWidth());
                 // We have opened an image therefore we can save it
                 menu_file_save.setDisable(false);
             }
+
+
+
             // Catches if there is no image selected but it is fine to just close the file explorer and move on
             catch (IOException | IllegalArgumentException e) {}
             // Catches if the selected image is not one of the approved file types
