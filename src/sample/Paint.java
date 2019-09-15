@@ -2,14 +2,12 @@ package sample;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
-import java.io.File;
 
 public class Paint extends Application {
 
     String version_number = "Pain(t) V.1.0.1";
-    private Stage primaryStage;
 
-    public void start(Stage primaryStage) throws Exception{
+    public void start(Stage primaryStage){
         // Sets the title of the window
         primaryStage.setTitle(version_number);
         // Create the window as a whole

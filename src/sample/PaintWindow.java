@@ -40,15 +40,19 @@ class PaintWindow {
         gc = canvas.getGraphicsContext2D();
         gc.setLineWidth(1);
 
+        // Sets up the buttons for drawing and undoing
+        PaintDrawActions drawactions = new PaintDrawActions();
+
         //Wrappers for our layouts to best optimize viewing
         Region target = new StackPane(canvas);
         Group group = new Group(target);
         BorderPane borderpane = new BorderPane();
         borderpane.setCenter(group);
+        borderpane.setLeft(drawactions.setup(canvas, gc));
         scrollpane = new ScrollPane(borderpane);
         scrollpane.setFitToWidth(true);
         scrollpane.setFitToHeight(true);
-        scrollpane.setPannable(true);
+        //scrollpane.setPannable(true);
 
         // Initialize our menubar and pass it our canvas, gc, and stage
         PaintMenuBar menubar = new PaintMenuBar(canvas, gc, primaryStage);
@@ -94,5 +98,6 @@ class PaintWindow {
                 scrollpane.setHvalue((valX + adjustment.getX()) / (groupBounds.getWidth() - viewportBounds.getWidth()));
                 scrollpane.setVvalue((valY + adjustment.getY()) / (groupBounds.getHeight() - viewportBounds.getHeight()));
         }});
+
     return main_scene;
 }}
