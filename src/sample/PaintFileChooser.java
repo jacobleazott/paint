@@ -1,13 +1,13 @@
 package sample;
 
 import javafx.stage.FileChooser;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class PaintFileChooser {
-    public FileChooser setup(){
+// Creates the main file chooser for this project with all of its supported file types
+class PaintFileChooser {
+    FileChooser setup(){
         // Base file chooser object for interfacing with file explorer for opening and saving
         FileChooser filechooser = new FileChooser();
         // The different valid image types that the user is allowed to open and their associated file extensions
@@ -25,11 +25,8 @@ public class PaintFileChooser {
         // Creates a list of filters for file types based off of file_filter_data
         for(int i = 0; i < file_filter_data.length; i++){
             String[] tmp_filter = Arrays.copyOfRange(file_filter_data[i], 1, file_filter_data[i].length);
-            file_filters.add(i, new FileChooser.ExtensionFilter(file_filter_data[i][0], tmp_filter));
-        }
+            file_filters.add(i, new FileChooser.ExtensionFilter(file_filter_data[i][0], tmp_filter)); }
         // Applies the filters we have created to our filechooser object
         filechooser.getExtensionFilters().addAll(file_filters);
-
         return filechooser;
-    }
-}
+}}

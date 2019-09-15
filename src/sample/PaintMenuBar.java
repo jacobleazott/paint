@@ -19,7 +19,8 @@ import javafx.stage.Screen;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 
-public class PaintMenuBar{
+// Creates and initializes the menu bar with their associated actions
+class PaintMenuBar{
 
     private File filechooser_file;
     private FileChooser filechooser;
@@ -28,14 +29,15 @@ public class PaintMenuBar{
     private GraphicsContext gc;
     private Stage primaryStage;
 
-    public PaintMenuBar(Canvas canvas, GraphicsContext gc, Stage primaryStage) {
+    // Constructors
+    PaintMenuBar(Canvas canvas, GraphicsContext gc, Stage primaryStage) {
         this.canvas = canvas;
         this.gc = gc;
         this.primaryStage = primaryStage;
         }
 
-    public MenuBar setup_menubar() {
-        // Creates instances so we can access specefic data and methods
+    MenuBar setup_menubar() {
+        // Creates instances so we can access specific data and methods
         Paint main = new Paint();
         PaintWindow window = new PaintWindow();
         // Grabs the screens resolution size
@@ -91,7 +93,7 @@ public class PaintMenuBar{
                 menu_file_save.setDisable(true);
             }
             // Catches if there is no image selected but it is fine to just close the file explorer and move on
-            catch (NullPointerException e) {}
+            catch (NullPointerException ignored) {}
             // Catches if the selected image is not one of the approved file types
             catch (IOException | IllegalArgumentException e){
                 // Creates an alert window changes its displayed text and title
@@ -110,7 +112,7 @@ public class PaintMenuBar{
             // Saves the image to the desired location using the appropriate filters available
             try { ImageIO.write(SwingFXUtils.fromFXImage(img, null), "", filechooser_file); }
             // Catches if there is no selected location to save but no action necessary
-            catch (IOException | IllegalArgumentException e) {}
+            catch (IOException | IllegalArgumentException ignored) {}
             // Since we have a file location we can just regularly save it
             menu_file_save.setDisable(false);
         });
@@ -121,13 +123,11 @@ public class PaintMenuBar{
             // Saves the image to the desired location using the appropriate filters available
             try { ImageIO.write(SwingFXUtils.fromFXImage(img, null), "", filechooser_file); }
             // Catches if there is no selected location to save but no action necessary
-            catch (IOException | IllegalArgumentException e) { }
+            catch (IOException | IllegalArgumentException ignored) { }
         });
 
         // Sets the action for the exit button to close the window
-        menu_file_exit.setOnAction(event -> {
-            Platform.exit();
-        });
+        menu_file_exit.setOnAction(event -> Platform.exit());
 
         // Sets the action for the help button to display "helpful" information
         menu_help_about.setOnAction(event -> {
@@ -141,6 +141,4 @@ public class PaintMenuBar{
         window.set_Canvas(canvas);
         window.set_gc(gc);
         return menubar;
-    }
-
-}
+}}
