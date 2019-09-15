@@ -2,6 +2,7 @@ package sample;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Menu;
@@ -38,12 +39,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.ScrollEvent;
 import javafx.stage.Stage;
 import javafx.application.Application;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.application.Application;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Text;
@@ -58,7 +57,6 @@ import javafx.scene.shape.ArcType;
 import javafx.stage.Stage;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
-import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
@@ -70,6 +68,25 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Stage;
+import java.net.MalformedURLException;
+import javafx.application.Application;
+import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
+import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SplitPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
 public class Main extends Application {
@@ -139,11 +156,11 @@ public class Main extends Application {
 
 
 
-        BorderPane borderpane = new BorderPane();
-        borderpane.setCenter(canvas);
-        System.out.println(primaryStage.getWidth());
+        //BorderPane borderpane = new BorderPane();
+        //borderpane.setCenter(canvas);
+        //System.out.println(primaryStage.getWidth());
 
-        ScrollPane scrollpane = new ScrollPane(borderpane);
+        //ScrollPane scrollpane = new ScrollPane(borderpane);
         //scrollpane.set
 
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
@@ -152,6 +169,18 @@ public class Main extends Application {
         //////////////////////////////////////////////
 
         //Wrapper for our layouts and special menu bars
+
+        StackPane result = new StackPane(canvas);
+        Region target = result;
+        Group group = new Group(target);
+        BorderPane borderpane = new BorderPane();
+        borderpane.setCenter(group);
+        borderpane.setStyle("-fx-background-color:#FFFF00;");
+        ScrollPane scrollpane = new ScrollPane(borderpane);
+        scrollpane.setStyle("-fx-background-color:#FF0000;");
+        scrollpane.setFitToWidth(true);
+        scrollpane.setFitToHeight(true);
+        scrollpane.setPannable(true);
         VBox window = new VBox(menubar, scrollpane);
 
         // Uses the wrapper and given window starting sizes to create a scene which is yet another wrapper
@@ -170,20 +199,6 @@ public class Main extends Application {
 
         final DoubleProperty zoomProperty = new SimpleDoubleProperty(10);
         ////////////////////////////////////////////////////////////////////////////////
-
-
-
-        zoomProperty.addListener(new InvalidationListener() {
-            @Override
-            public void invalidated(Observable arg0) {
-
-                canvas.setScaleX(zoomProperty.get());
-                canvas.setScaleY(zoomProperty.get());
-                //img.setFitWidth(zoomProperty.get() * 4);
-               // myImageView.setFitHeight(zoomProperty.get() * 3);
-            }
-        });
-
         window.addEventFilter(ScrollEvent.ANY, new EventHandler<ScrollEvent>() {
             @Override
             public void handle(ScrollEvent event) {
@@ -194,6 +209,34 @@ public class Main extends Application {
                 }
             }
         });
+
+        borderpane.setOnScroll(evt -> {
+            if (evt.isControlDown()) {
+                evt.consume();
+                final double zoomFactor = evt.getDeltaY() > 0 ? 1.2 : 1 / 1.2;
+                Bounds groupBounds = group.getLayoutBounds();
+                final Bounds viewportBounds = scrollpane.getViewportBounds();
+                // calculate pixel offsets from [0, 1] range
+                double valX = scrollpane.getHvalue() * (groupBounds.getWidth() - viewportBounds.getWidth());
+                double valY = scrollpane.getVvalue() * (groupBounds.getHeight() - viewportBounds.getHeight());
+                // convert content coordinates to target coordinates
+                Point2D posInZoomTarget = target.parentToLocal(group.parentToLocal(new Point2D(evt.getX(), evt.getY())));
+                // calculate adjustment of scroll position (pixels)
+                Point2D adjustment = target.getLocalToParentTransform().deltaTransform(posInZoomTarget.multiply(zoomFactor - 1));
+                // do the resizing
+                target.setScaleX(zoomFactor * target.getScaleX());
+                target.setScaleY(zoomFactor * target.getScaleY());
+                // refresh ScrollPane scroll positions & content bounds
+                scrollpane.layout();
+                // convert back to [0, 1] range
+                // (too large/small values are automatically corrected by ScrollPane)
+                groupBounds = group.getLayoutBounds();
+                scrollpane.setHvalue((valX + adjustment.getX()) / (groupBounds.getWidth() - viewportBounds.getWidth()));
+                scrollpane.setVvalue((valY + adjustment.getY()) / (groupBounds.getHeight() - viewportBounds.getHeight()));
+            }
+        });
+
+
         //img.preserveRatioProperty().set(true);
         ////////////////////////////////////////////////////////////////////////////////
 
@@ -213,6 +256,12 @@ public class Main extends Application {
                 canvas.setHeight(img.getHeight());
                 canvas.setWidth(img.getWidth());
                 gc.drawImage(img, 0, 0);
+                if (primaryStage.getHeight() < canvas.getHeight() && primaryScreenBounds.getHeight() < canvas.getHeight()){
+                    primaryStage.setHeight(canvas.getHeight());
+                }
+                if (primaryStage.getWidth() < canvas.getWidth() && primaryScreenBounds.getWidth() < canvas.getWidth()){
+                    primaryStage.setWidth(canvas.getWidth());
+                }
 
 
                 //myImageView.setImage(open_image);
@@ -270,12 +319,12 @@ public class Main extends Application {
         });
 
         canvas.setOnDragDetected(evt -> {
-            Node target = (Node) evt.getTarget();
-            while (target != canvas && target != null) {
-                target = target.getParent();
+            Node targets = (Node) evt.getTarget();
+            while (targets != canvas && targets != null) {
+                targets = targets.getParent();
             }
-            if (target != null) {
-                target.startFullDrag();
+            if (targets != null) {
+                targets.startFullDrag();
             }
         });
 

@@ -102,29 +102,21 @@ public class test extends Application {
         content.setOnScroll(evt -> {
             if (evt.isControlDown()) {
                 evt.consume();
-
                 final double zoomFactor = evt.getDeltaY() > 0 ? 1.2 : 1 / 1.2;
-
                 Bounds groupBounds = group.getLayoutBounds();
                 final Bounds viewportBounds = scrollPane.getViewportBounds();
-
                 // calculate pixel offsets from [0, 1] range
                 double valX = scrollPane.getHvalue() * (groupBounds.getWidth() - viewportBounds.getWidth());
                 double valY = scrollPane.getVvalue() * (groupBounds.getHeight() - viewportBounds.getHeight());
-
                 // convert content coordinates to zoomTarget coordinates
                 Point2D posInZoomTarget = zoomTarget.parentToLocal(group.parentToLocal(new Point2D(evt.getX(), evt.getY())));
-
                 // calculate adjustment of scroll position (pixels)
                 Point2D adjustment = zoomTarget.getLocalToParentTransform().deltaTransform(posInZoomTarget.multiply(zoomFactor - 1));
-
                 // do the resizing
                 zoomTarget.setScaleX(zoomFactor * zoomTarget.getScaleX());
                 zoomTarget.setScaleY(zoomFactor * zoomTarget.getScaleY());
-
                 // refresh ScrollPane scroll positions & content bounds
                 scrollPane.layout();
-
                 // convert back to [0, 1] range
                 // (too large/small values are automatically corrected by ScrollPane)
                 groupBounds = group.getLayoutBounds();
