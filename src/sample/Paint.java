@@ -39,7 +39,6 @@ import javafx.scene.layout.Region;
 public class Paint extends Application {
 
     public String version_number = "Pain(t) V.1.0.1";
-    public Image img;
     public File filechooser_file;
     public Stage primaryStage;
 
@@ -52,10 +51,10 @@ public class Paint extends Application {
         // Sets the title of the window
         primaryStage.setTitle(version_number);
 
-        PaintWindow main_scene = new PaintWindow();
+        PaintWindow main_scene = new PaintWindow(primaryStage);
 
         // Applies our created scene to our default window
-        primaryStage.setScene(main_scene.setup_scene());
+        primaryStage.setScene(main_scene.setup_Scene());
         // Displays the window for the user to finally see
         primaryStage.show();
 
