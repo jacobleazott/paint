@@ -28,6 +28,7 @@ class PaintMenuBar{
     private Canvas canvas;
     private GraphicsContext gc;
     private Stage primaryStage;
+    private PaintSettingsWindow settings_window = new PaintSettingsWindow();
 
     // Constructors
     PaintMenuBar(Canvas canvas, GraphicsContext gc, Stage primaryStage) {
@@ -56,8 +57,9 @@ class PaintMenuBar{
         MenuItem menu_file_open = new MenuItem("Open");
         MenuItem menu_file_save_as = new MenuItem("Save As");
         MenuItem menu_file_save = new MenuItem("Save");
+        MenuItem menu_file_settings = new MenuItem("Settings");
         MenuItem menu_file_exit = new MenuItem("Exit");
-        menu_file.getItems().addAll(menu_file_open, menu_file_save_as, menu_file_save, menu_file_exit);
+        menu_file.getItems().addAll(menu_file_open, menu_file_save_as, menu_file_save, menu_file_settings, menu_file_exit);
         // Creates About section under menu -> help tab
         MenuItem menu_help_about = new MenuItem("About");
         menu_help.getItems().add(menu_help_about);
@@ -124,6 +126,12 @@ class PaintMenuBar{
             try { ImageIO.write(SwingFXUtils.fromFXImage(img, null), "", filechooser_file); }
             // Catches if there is no selected location to save but no action necessary
             catch (IOException | IllegalArgumentException ignored) { }
+        });
+
+        // Sets the action to open up the settings menu
+        menu_file_settings.setOnAction(event -> {
+            settings_window.show();
+            System.out.println(settings_window.get_check());
         });
 
         // Sets the action for the exit button to close the window
