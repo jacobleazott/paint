@@ -39,7 +39,7 @@ class PaintMenuBar{
 
     MenuBar setup_menubar() {
         // Creates instances so we can access specific data and methods
-        Paint main = new Paint();
+        PaintMain main = new PaintMain();
         PaintWindow window = new PaintWindow();
         // Grabs the screens resolution size
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();

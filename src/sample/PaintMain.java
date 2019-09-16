@@ -3,7 +3,7 @@ package sample;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-public class Paint extends Application {
+public class PaintMain extends Application {
 
     String version_number = "Pain(t) V.1.0.1";
 
