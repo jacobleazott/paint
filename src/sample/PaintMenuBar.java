@@ -18,6 +18,9 @@ import javafx.stage.Stage;
 import javafx.stage.Screen;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.ButtonType;
+import java.util.Optional;
+
 
 // Creates and initializes the menu bar with their associated actions
 class PaintMenuBar{
@@ -29,6 +32,8 @@ class PaintMenuBar{
     private GraphicsContext gc;
     private Stage primaryStage;
     private PaintSettingsWindow settings_window = new PaintSettingsWindow();
+    private boolean image_saved = false;
+    private MenuItem menu_file_save;
 
     // Constructors
     PaintMenuBar(Canvas canvas, GraphicsContext gc, Stage primaryStage) {
@@ -36,6 +41,59 @@ class PaintMenuBar{
         this.gc = gc;
         this.primaryStage = primaryStage;
         }
+
+    PaintMenuBar() {}
+
+    void setImageSaved(boolean save){
+        image_saved = save;
+    }
+
+    void saveAs(){
+        filechooser.setTitle("Save Image");
+        // Opens up the file explorer and stores your file name/ location in filechooser_file
+        filechooser_file = filechooser.showSaveDialog(null);
+        // Saves the image to the desired location using the appropriate filters available
+        try { ImageIO.write(SwingFXUtils.fromFXImage(img, null), "", filechooser_file); }
+        // Catches if there is no selected location to save but no action necessary
+        catch (IOException | IllegalArgumentException ignored) {}
+        // Since we have a file location we can just regularly save it
+        menu_file_save.setDisable(false);
+        image_saved = true;
+    }
+
+    void save(){
+        filechooser.setTitle("Save Image");
+        // Saves the image to the desired location using the appropriate filters available
+        try { ImageIO.write(SwingFXUtils.fromFXImage(img, null), "", filechooser_file); }
+        // Catches if there is no selected location to save but no action necessary
+        catch (IOException | IllegalArgumentException ignored) { }
+        image_saved = true;
+    }
+
+    void closeAlert(){
+        if (image_saved){
+            Platform.exit();
+        }
+        else{
+            Alert alert_save = new Alert(Alert.AlertType.CONFIRMATION);
+            alert_save.setTitle("Exit Without Saving");
+            alert_save.setHeaderText("Are You Sure You Want To Exit Without Saving?");
+            ButtonType alert_save_close = new ButtonType("Close");
+            ButtonType alert_save_save = new ButtonType("Save");
+            alert_save.getButtonTypes().clear();
+            alert_save.getButtonTypes().addAll(alert_save_close, alert_save_save);
+            Optional<ButtonType> option = alert_save.showAndWait();
+            if (option.get() == null) {
+                alert_save.close();
+            } else if (option.get() == alert_save_close){
+                Platform.exit();
+            } else if (option.get() == alert_save_save) {
+                if (menu_file_save.isDisable()) {
+                    saveAs();
+                } else {save(); } }
+            else{ Platform.exit(); }
+        }
+    }
 
     MenuBar setup_menubar() {
         // Creates instances so we can access specific data and methods
@@ -56,7 +114,7 @@ class PaintMenuBar{
         // Creates 3 new options and adds them under the menu -> file tab in sequence
         MenuItem menu_file_open = new MenuItem("Open");
         MenuItem menu_file_save_as = new MenuItem("Save As");
-        MenuItem menu_file_save = new MenuItem("Save");
+        menu_file_save = new MenuItem("Save");
         MenuItem menu_file_settings = new MenuItem("Settings");
         MenuItem menu_file_exit = new MenuItem("Exit");
         menu_file.getItems().addAll(menu_file_open, menu_file_save_as, menu_file_save, menu_file_settings, menu_file_exit);
@@ -93,6 +151,7 @@ class PaintMenuBar{
                 // We have opened an image therefore we can save use save as
                 menu_file_save_as.setDisable(false);
                 menu_file_save.setDisable(true);
+                image_saved = false;
             }
             // Catches if there is no image selected but it is fine to just close the file explorer and move on
             catch (NullPointerException ignored) {}
@@ -108,24 +167,12 @@ class PaintMenuBar{
 
         // Sets the action for the save as button to open up the file chooser and save the image
         menu_file_save_as.setOnAction(event -> {
-            filechooser.setTitle("Save Image");
-            // Opens up the file explorer and stores your file name/ location in filechooser_file
-            filechooser_file = filechooser.showSaveDialog(null);
-            // Saves the image to the desired location using the appropriate filters available
-            try { ImageIO.write(SwingFXUtils.fromFXImage(img, null), "", filechooser_file); }
-            // Catches if there is no selected location to save but no action necessary
-            catch (IOException | IllegalArgumentException ignored) {}
-            // Since we have a file location we can just regularly save it
-            menu_file_save.setDisable(false);
+            saveAs();
         });
 
         // Sets the action for the save button to save where it was saved last
         menu_file_save.setOnAction(event -> {
-            filechooser.setTitle("Save Image");
-            // Saves the image to the desired location using the appropriate filters available
-            try { ImageIO.write(SwingFXUtils.fromFXImage(img, null), "", filechooser_file); }
-            // Catches if there is no selected location to save but no action necessary
-            catch (IOException | IllegalArgumentException ignored) { }
+            save();
         });
 
         // Sets the action to open up the settings menu
@@ -133,9 +180,17 @@ class PaintMenuBar{
             settings_window.show();
             System.out.println(settings_window.get_check());
         });
+        //test
 
         // Sets the action for the exit button to close the window
-        menu_file_exit.setOnAction(event -> Platform.exit());
+        menu_file_exit.setOnAction(event -> {
+            closeAlert();
+        });
+
+        // Sets the action if you press the red x on the top right of the window
+        primaryStage.setOnCloseRequest(event-> {
+            closeAlert();
+        });
 
         // Sets the action for the help button to display "helpful" information
         menu_help_about.setOnAction(event -> {
@@ -145,8 +200,9 @@ class PaintMenuBar{
             alert_help.show();
         });
 
+
         // update the canvas and the gc with its changes
         window.set_Canvas(canvas);
-        window.set_gc(gc);
+       // window.set_gc(gc);
         return menubar;
 }}

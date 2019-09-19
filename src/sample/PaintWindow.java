@@ -67,8 +67,6 @@ class PaintWindow {
         Scene main_scene = new Scene(window, window_startup_width, window_startup_height);
 
         // Make it so the scrollpane and the borderpane both fit to the window properly
-        scrollpane.setFitToHeight(true);
-        scrollpane.setFitToWidth(true);
         borderpane.prefWidthProperty().bind(main_scene.widthProperty());
         borderpane.prefHeightProperty().bind(main_scene.heightProperty());
 

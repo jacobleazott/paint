@@ -13,7 +13,10 @@ import javafx.scene.text.Font;
 import java.util.Stack;
 
 public class PaintDrawActions {
-     VBox setup(Canvas canvas, GraphicsContext gc){
+    VBox setup(Canvas canvas, GraphicsContext gc) {
+
+        PaintWindow window = new PaintWindow();
+        PaintMenuBar menubar = new PaintMenuBar();
 
         Stack<Shape> undoHistory = new Stack();
         Stack<Shape> redoHistory = new Stack();
@@ -128,6 +131,8 @@ public class PaintDrawActions {
         });
 
         canvas.setOnMouseReleased(e -> {
+            menubar.setImageSaved(false);
+            ////////////////////
             if (drowbtn.isSelected()) {
                 gc.lineTo(e.getX(), e.getY());
                 gc.stroke();
@@ -326,7 +331,6 @@ public class PaintDrawActions {
                 }
             });
         });
-        PaintWindow window = new PaintWindow();
         window.set_Canvas(canvas);
         return btns;
     }
