@@ -36,10 +36,21 @@ import java.util.Stack;
 public class PaintDrawActions {
     private Image img;
     private PaintMenuBar menubar;
+    private final int MIN_HEIGHT = 90;
+    private final int MIN_WIDTH = 90;
+    private final int TOOL_BAR_H_GAP = 5;
+    private final int SLIDER_MIN = 1;
+    private final int SLIDER_MAX = 50;
+    private final int SLIDER_INITIAL = 3;
+    private final int GRAPHICS_CONTEXT_LINE_WIDTH = 1;
+    private final int CANVAS_ORIGIN_X = 0;
+    private final int CANVAS_ORIGIN_Y = 0;
+
 
     void setImage(Image img){
         this.img = img;
     }
+
     VBox setup(Canvas canvas, GraphicsContext gc) {
 
         PaintWindow window = new PaintWindow();
@@ -62,7 +73,7 @@ public class PaintDrawActions {
         ToggleGroup tools = new ToggleGroup();
 
         for (ToggleButton tool : toolsArr) {
-            tool.setMinWidth(90);
+            tool.setMinWidth(MIN_HEIGHT);
             tool.setToggleGroup(tools);
             tool.setCursor(Cursor.HAND);
         }
@@ -72,8 +83,7 @@ public class PaintDrawActions {
 
         TextArea text = new TextArea();
         text.setPrefRowCount(1);
-
-        Slider slider = new Slider(1, 50, 3);
+        Slider slider = new Slider(SLIDER_MIN, SLIDER_MAX, SLIDER_INITIAL);
         slider.setShowTickLabels(true);
         slider.setShowTickMarks(true);
 
@@ -89,7 +99,7 @@ public class PaintDrawActions {
         Button[] basicArr = {undo, redo, save, open};
 
         for (Button btn : basicArr) {
-            btn.setMinWidth(90);
+            btn.setMinWidth(MIN_WIDTH);
             btn.setCursor(Cursor.HAND);
             btn.setTextFill(Color.WHITE);
             btn.setStyle("-fx-background-color: #666;");
@@ -97,15 +107,15 @@ public class PaintDrawActions {
         save.setStyle("-fx-background-color: #80334d;");
         open.setStyle("-fx-background-color: #80334d;");
 
-        VBox btns = new VBox(10);
+        VBox btns = new VBox(2*TOOL_BAR_H_GAP);
         btns.getChildren().addAll(drowbtn, rubberbtn, linebtn, rectbtn, circlebtn, elpslebtn,
                 textbtn, text,dropperbtn, line_color, cpLine, fill_color, cpFill, line_width, slider, undo, redo);
-        btns.setPadding(new Insets(5));
+        btns.setPadding(new Insets(TOOL_BAR_H_GAP));
         btns.setStyle("-fx-background-color: #999");
-        btns.setPrefWidth(100);
+        btns.setPrefWidth(MIN_WIDTH+2*TOOL_BAR_H_GAP);
 
         /* ----------Draw Canvas---------- */
-        gc.setLineWidth(1);
+        gc.setLineWidth(GRAPHICS_CONTEXT_LINE_WIDTH);
 
         Line line = new Line();
         Rectangle rect = new Rectangle();
@@ -246,7 +256,7 @@ public class PaintDrawActions {
             slider.valueProperty().addListener(dfe -> {
                 double width = slider.getValue();
                 if (textbtn.isSelected()) {
-                    gc.setLineWidth(1);
+                    gc.setLineWidth(GRAPHICS_CONTEXT_LINE_WIDTH);
                     gc.setFont(Font.font(slider.getValue()));
                     line_width.setText(String.format("%.1f", width));
                     return;
@@ -261,8 +271,8 @@ public class PaintDrawActions {
             // Undo
             undo.setOnAction(sdfe -> {
                 if (!undoHistory.empty()) {
-                    gc.clearRect(0, 0, 1024, 1024);
-                    gc.drawImage(img, 0, 0);
+                    gc.clearRect(CANVAS_ORIGIN_X, CANVAS_ORIGIN_Y, canvas.getWidth(), canvas.getHeight());
+                    gc.drawImage(img, CANVAS_ORIGIN_X, CANVAS_ORIGIN_Y);
                     Shape removedShape = undoHistory.lastElement();
                     if (removedShape.getClass() == Line.class) {
                         Line tempLine = (Line) removedShape;

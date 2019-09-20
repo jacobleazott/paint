@@ -45,6 +45,9 @@ class PaintMenuBar{
     private PaintMain main = new PaintMain();
     private PaintWindow window = new PaintWindow();
     private PaintDrawActions drawactions;
+    private final int HORIZONTAL_GAP = 10;
+    private final int CANVAS_ORIGIN_X = 0;
+    private final int CANVAS_ORIGIN_Y = 0;
 
     // Constructors
     PaintMenuBar(Canvas canvas, GraphicsContext gc, Stage primaryStage, PaintDrawActions drawactions) {
@@ -123,7 +126,7 @@ class PaintMenuBar{
             canvas.setHeight(img.getHeight());
             canvas.setWidth(img.getWidth());
             // Displays the image in the upper left corner of canvas
-            gc.drawImage(img, 0, 0);
+            gc.drawImage(img, CANVAS_ORIGIN_X, CANVAS_ORIGIN_Y);
             // Makes sure the canvas is large enough to display our image properly but restricts to screen size
             /*System.out.println("Blag");
             if (primaryStage.getHeight() < canvas.getHeight() && primaryScreenBounds.getHeight() > canvas.getHeight()){
@@ -222,7 +225,7 @@ class PaintMenuBar{
             Button image_button = new Button("_Apply");
             FlowPane flowpane = new FlowPane();
             flowpane.getChildren().addAll(label_x, textField_x, label_y, textField_y, image_button);
-            flowpane.setHgap(10);
+            flowpane.setHgap(HORIZONTAL_GAP);
 
             Scene imagesize_scene = new Scene(flowpane);
             Stage imagesize_window = new Stage();
@@ -242,6 +245,7 @@ class PaintMenuBar{
                 }
             });
         });
+
         // Sets the action for the help button to display "helpful" information
         menu_help_about.setOnAction(event -> {
             Alert alert_help = new Alert(Alert.AlertType.INFORMATION);
@@ -249,7 +253,6 @@ class PaintMenuBar{
             alert_help.setTitle(main.version_number);
             alert_help.show();
         });
-
 
         // update the canvas and the gc with its changes
         window.set_Canvas(canvas);

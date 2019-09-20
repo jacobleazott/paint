@@ -42,6 +42,12 @@ public class PaintSettingsWindow {
     private GridPane gridpane;
     private List<Button> settings_list;
     private SplitPane splitpane;
+    private int currrow = 0;
+    private int currcol = 0;
+    private final int SETTINGS_WINDOW_RATIO_X = 5;
+    private final int SETTINGS_WINDOW_RATIO_Y = 3;
+    private final double INTERNAL_SPLIT_RATIO = 0.7;
+    private final int VERTICAL_GAP = 5;
 
     PaintSettingsWindow() {
 
@@ -52,13 +58,14 @@ public class PaintSettingsWindow {
         gridpane = new GridPane();
 
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-        int window_startup_width = (int) (primaryScreenBounds.getWidth() / 5);
-        int window_startup_height = (int) (primaryScreenBounds.getHeight() / 3);
+        int window_startup_width = (int) (primaryScreenBounds.getWidth() / SETTINGS_WINDOW_RATIO_X);
+        int window_startup_height = (int) (primaryScreenBounds.getHeight() / SETTINGS_WINDOW_RATIO_Y);
 
         String[] display_theme_options = {"Dark Mode", "Light Mode"};
         display_theme_choicebox = new ChoiceBox<String>(FXCollections.observableArrayList(display_theme_options));
-        gridpane.add(new Label("Display-----------------------------------------------------------------------"), 0, 0);
-        gridpane.add(display_theme_choicebox, 0, 1);
+        gridpane.add(new Label("Display------------------------------------------------------"), currrow, currcol);
+        currcol++;
+        gridpane.add(display_theme_choicebox, currrow, currcol);
 
         display_theme_choicebox.setValue("Dark Mode");
 
@@ -67,14 +74,14 @@ public class PaintSettingsWindow {
         settings_list = new ArrayList<>();
 
         gridpane_settings = new GridPane();
-        gridpane_settings.setVgap(5);
+        gridpane_settings.setVgap(VERTICAL_GAP);
 
         for (int i = 0; i < settings_options.length; i++) {
             Button tmp = new Button(settings_options[i]);
             tmp.setStyle("-fx-background-color: " + background_string + ";");
             tmp.setStyle("-fx-text-fill: " + font_string + ";");
             settings_list.add(new Button(settings_options[i]));
-            gridpane_settings.add(settings_list.get(i), 0, i);
+            gridpane_settings.add(settings_list.get(i), currrow, i);
         }
 
         splitpane = new SplitPane();
@@ -82,8 +89,8 @@ public class PaintSettingsWindow {
         splitpane.getItems().add(gridpane);
         //System.out.println(window_startup_width);
         // Locks Settings display into two parts
-        gridpane.maxWidthProperty().bind(splitpane.widthProperty().multiply(0.7));
-        gridpane.minWidthProperty().bind(splitpane.widthProperty().multiply(0.7));
+        gridpane.maxWidthProperty().bind(splitpane.widthProperty().multiply(INTERNAL_SPLIT_RATIO));
+        gridpane.minWidthProperty().bind(splitpane.widthProperty().multiply(INTERNAL_SPLIT_RATIO));
         gridpane_settings.setStyle("-fx-background-color: " + background_string + ";");
         //gridpane_settings.setStyle("-fx-text-fill: " + font_string + ";");
 

@@ -17,26 +17,7 @@ import javafx.scene.layout.StackPane;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.layout.Region;
-import javafx.application.Platform;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.image.Image;
-import javax.imageio.ImageIO;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.stage.FileChooser;
-import javafx.geometry.*;
-import javafx.stage.Stage;
-import javafx.stage.Screen;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.ButtonType;
-import java.util.Optional;
 
 // Holds and initializes all of the main internal window aspects
 class PaintWindow {
@@ -44,6 +25,15 @@ class PaintWindow {
     private Canvas canvas;
     private GraphicsContext gc;
     private Stage primaryStage;
+    private final int INITIAL_CANVAS_SIZE_X = 0;
+    private final int INITIAL_CANVAS_SIZE_Y = 0;
+    private final double INITIAL_WINDOW_RATIO_X = 1.5;
+    private final double INITIAL_WINDOW_RATIO_Y = 1.5;
+    private final int GRAPHICS_CONTEXT_LINE_WIDTH = 1;
+    private final double ZOOM_SCALE = 1.2;
+    private final double ZOOM_LOWER_BOUND = 0;
+    private final double ZOOM_UPPER_BOUND = 1;
+
     ScrollPane scrollpane;
 
     // Constructors
@@ -59,10 +49,9 @@ class PaintWindow {
 
     Scene setup_Scene(){
         // Initializes our canvas to where we will draw and the gc which is the handler for the graphics
-        canvas = new Canvas(0, 0);
+        canvas = new Canvas(INITIAL_CANVAS_SIZE_X, INITIAL_CANVAS_SIZE_Y);
         gc = canvas.getGraphicsContext2D();
-        gc.setLineWidth(1);
-
+        gc.setLineWidth(GRAPHICS_CONTEXT_LINE_WIDTH);
 
         // Sets up the buttons for drawing and undoing
         PaintDrawActions drawactions = new PaintDrawActions();
@@ -71,8 +60,6 @@ class PaintWindow {
         PaintMenuBar paintmenubar = new PaintMenuBar(canvas, gc, primaryStage, drawactions);
         // Wrap it all up into one nice VBox
         MenuBar menubar = paintmenubar.setup_menubar();
-
-
 
         //Wrappers for our layouts to best optimize viewing
         Region target = new StackPane(canvas);
@@ -89,15 +76,14 @@ class PaintWindow {
         outerpane.setLeft(drawactions.setup(canvas, gc));
         //scrollpane.setPannable(true);
 
-
         VBox window = new VBox(menubar, outerpane);
 
         drawactions.setImage(paintmenubar.getImage());
 
         // Grabs the resolution that the window is being displayed on to better display the window on startup
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-        int window_startup_width = (int) (primaryScreenBounds.getWidth()/1.5);
-        int window_startup_height = (int) (primaryScreenBounds.getHeight()/1.5);
+        int window_startup_width = (int) (primaryScreenBounds.getWidth()/INITIAL_WINDOW_RATIO_X);
+        int window_startup_height = (int) (primaryScreenBounds.getHeight()/INITIAL_WINDOW_RATIO_Y);
 
         Scene main_scene = new Scene(window, window_startup_width, window_startup_height);
 
@@ -110,7 +96,8 @@ class PaintWindow {
             if (evt.isControlDown()) {
                 evt.consume();
                 // These numbers need to be hardcoded for standard zoom factor
-                final double zoomFactor = evt.getDeltaY() > 0 ? 1.2 : 1 / 1.2;
+                final double zoomFactor = evt.getDeltaY() > ZOOM_LOWER_BOUND ? ZOOM_SCALE :
+                        ZOOM_UPPER_BOUND / ZOOM_SCALE;
                 Bounds groupBounds = group.getLayoutBounds();
                 final Bounds viewportBounds = scrollpane.getViewportBounds();
                 // calculate pixel offsets from [0, 1] range
@@ -119,7 +106,8 @@ class PaintWindow {
                 // convert content coordinates to target coordinates
                 Point2D posInZoomTarget = target.parentToLocal(group.parentToLocal(new Point2D(evt.getX(), evt.getY())));
                 // calculate adjustment of scroll position (pixels)
-                Point2D adjustment = target.getLocalToParentTransform().deltaTransform(posInZoomTarget.multiply(zoomFactor - 1));
+                Point2D adjustment = target.getLocalToParentTransform().deltaTransform(posInZoomTarget.multiply(
+                        zoomFactor - ZOOM_UPPER_BOUND));
                 // do the resizing
                 target.setScaleX(zoomFactor * target.getScaleX());
                 target.setScaleY(zoomFactor * target.getScaleY());

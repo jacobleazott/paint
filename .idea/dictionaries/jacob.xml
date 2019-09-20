@@ -2,6 +2,7 @@
   <dictionary name="jacob">
     <words>
       <w>borderpane</w>
+      <w>drawactions</w>
       <w>filechooser</w>
       <w>menubar</w>
       <w>scrollpane</w>
