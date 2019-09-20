@@ -12,6 +12,7 @@ import javafx.scene.text.Font;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,14 +49,15 @@ public class PaintDrawActions {
         Stack<Shape> redoHistory = new Stack();
         /* ----------btns---------- */
         ToggleButton drowbtn = new ToggleButton("Draw");
-        ToggleButton rubberbtn = new ToggleButton("Rubber");
+        ToggleButton rubberbtn = new ToggleButton("Erase");
         ToggleButton linebtn = new ToggleButton("Line");
         ToggleButton rectbtn = new ToggleButton("Rectange");
         ToggleButton circlebtn = new ToggleButton("Circle");
         ToggleButton elpslebtn = new ToggleButton("Ellipse");
         ToggleButton textbtn = new ToggleButton("Text");
+        ToggleButton dropperbtn = new ToggleButton("Dropper");
 
-        ToggleButton[] toolsArr = {drowbtn, rubberbtn, linebtn, rectbtn, circlebtn, elpslebtn, textbtn};
+        ToggleButton[] toolsArr = {drowbtn, rubberbtn, linebtn, rectbtn, circlebtn, elpslebtn, textbtn, dropperbtn};
 
         ToggleGroup tools = new ToggleGroup();
 
@@ -97,7 +99,7 @@ public class PaintDrawActions {
 
         VBox btns = new VBox(10);
         btns.getChildren().addAll(drowbtn, rubberbtn, linebtn, rectbtn, circlebtn, elpslebtn,
-                textbtn, text, line_color, cpLine, fill_color, cpFill, line_width, slider, undo, redo);
+                textbtn, text,dropperbtn, line_color, cpLine, fill_color, cpFill, line_width, slider, undo, redo);
         btns.setPadding(new Insets(5));
         btns.setStyle("-fx-background-color: #999");
         btns.setPrefWidth(100);
@@ -143,6 +145,17 @@ public class PaintDrawActions {
                 gc.setFill(cpFill.getValue());
                 gc.fillText(text.getText(), e.getX(), e.getY());
                 gc.strokeText(text.getText(), e.getX(), e.getY());
+            } else if (dropperbtn.isSelected()){
+                gc.beginPath();
+                double x0 = e.getX();
+                double y0 = e.getY();
+                PixelReader colordropper = img.getPixelReader();
+                Color newColor = colordropper.getColor((int)x0, (int)y0);
+                //newColor = cpFill.getValue();
+                cpFill.setValue(newColor);
+                cpFill.getCustomColors().add(newColor);
+                //cpFill.getCustomColors().set(0, newColor);
+                //gc.setFill(newColor);
             }
         });
 
@@ -241,6 +254,8 @@ public class PaintDrawActions {
                 line_width.setText(String.format("%.1f", width));
                 gc.setLineWidth(width);
             });
+
+
 
             /*------- Undo & Redo ------*/
             // Undo

@@ -20,6 +20,12 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ButtonType;
 import java.util.Optional;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 
 
 // Creates and initializes the menu bar with their associated actions
@@ -151,11 +157,11 @@ class PaintMenuBar{
         // Use our custom filechooser class with our filters already applied
         PaintFileChooser chooser = new PaintFileChooser();
         filechooser = chooser.setup();
-
         // Creates the object for the menu bar at the top
         MenuBar menubar = new MenuBar();
         // Creates the pull down tab "File" for the menu bar
         Menu menu_file = new Menu("_File");
+        Menu menu_edit = new Menu("_Edit");
         Menu menu_help = new Menu("_Help");
         // Creates 3 new options and adds them under the menu -> file tab in sequence
         MenuItem menu_file_open = new MenuItem("_Open");
@@ -164,11 +170,14 @@ class PaintMenuBar{
         MenuItem menu_file_settings = new MenuItem("Settings");
         MenuItem menu_file_exit = new MenuItem("_Exit");
         menu_file.getItems().addAll(menu_file_open, menu_file_save_as, menu_file_save, menu_file_settings, menu_file_exit);
+        // Creates sections under menu -> edit tab
+        MenuItem menu_edit_size = new MenuItem("_Image Size");
+        menu_edit.getItems().add(menu_edit_size);
         // Creates About section under menu -> help tab
         MenuItem menu_help_about = new MenuItem("_About");
         menu_help.getItems().add(menu_help_about);
         // Applies our "File" tab to our menu bar
-        menubar.getMenus().addAll(menu_file, menu_help);
+        menubar.getMenus().addAll(menu_file, menu_edit, menu_help);
         // This disables our save function since when we launch program there is nothing to save
         menu_file_save_as.setDisable(true);
         menu_file_save.setDisable(true);
@@ -205,6 +214,34 @@ class PaintMenuBar{
             closeAlert();
         });
 
+        menu_edit_size.setOnAction(event ->{
+            Label label_x = new Label("X:");
+            Label label_y = new Label("Y:");
+            TextField textField_x = new TextField ();
+            TextField textField_y = new TextField ();
+            Button image_button = new Button("_Apply");
+            FlowPane flowpane = new FlowPane();
+            flowpane.getChildren().addAll(label_x, textField_x, label_y, textField_y, image_button);
+            flowpane.setHgap(10);
+
+            Scene imagesize_scene = new Scene(flowpane);
+            Stage imagesize_window = new Stage();
+            imagesize_window.setTitle("Settings");
+            imagesize_window.setScene(imagesize_scene);
+            imagesize_window.show();
+
+            image_button.setOnAction(events -> {
+                try{
+                    canvas.setWidth(Integer.parseInt(textField_x.getText()));
+                    canvas.setHeight(Integer.parseInt(textField_y.getText()));
+                    imagesize_window.close();
+                    canvas.setStyle("-fx-background-color: " + "#FFFFFF" + ";");
+                }
+                catch(IllegalArgumentException e){
+                    System.out.println("Error Changing Image Size");
+                }
+            });
+        });
         // Sets the action for the help button to display "helpful" information
         menu_help_about.setOnAction(event -> {
             Alert alert_help = new Alert(Alert.AlertType.INFORMATION);
