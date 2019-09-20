@@ -9,10 +9,36 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.text.Font;
+import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.Image;
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.stage.FileChooser;
+import javafx.geometry.*;
+import javafx.stage.Stage;
+import javafx.stage.Screen;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.ButtonType;
+import java.util.Optional;
 
 import java.util.Stack;
 
 public class PaintDrawActions {
+    private Image img;
+    private PaintMenuBar menubar;
+
+    void setImage(Image img){
+        this.img = img;
+    }
     VBox setup(Canvas canvas, GraphicsContext gc) {
 
         PaintWindow window = new PaintWindow();
@@ -220,7 +246,8 @@ public class PaintDrawActions {
             // Undo
             undo.setOnAction(sdfe -> {
                 if (!undoHistory.empty()) {
-                    gc.clearRect(0, 0, 1080, 790);
+                    gc.clearRect(0, 0, 1024, 1024);
+                    gc.drawImage(img, 0, 0);
                     Shape removedShape = undoHistory.lastElement();
                     if (removedShape.getClass() == Line.class) {
                         Line tempLine = (Line) removedShape;
@@ -285,6 +312,7 @@ public class PaintDrawActions {
                             gc.strokeOval(temp.getCenterX(), temp.getCenterY(), temp.getRadiusX(), temp.getRadiusY());
                         }
                     }
+                    //gc.drawImage(img, 0, 0);
                 } else {
                     System.out.println("there is no action to undo");
                 }

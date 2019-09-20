@@ -34,18 +34,28 @@ class PaintMenuBar{
     private PaintSettingsWindow settings_window = new PaintSettingsWindow();
     private boolean image_saved = false;
     private MenuItem menu_file_save;
+    private MenuItem menu_file_save_as;
+    private Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
+    private PaintMain main = new PaintMain();
+    private PaintWindow window = new PaintWindow();
+    private PaintDrawActions drawactions;
 
     // Constructors
-    PaintMenuBar(Canvas canvas, GraphicsContext gc, Stage primaryStage) {
+    PaintMenuBar(Canvas canvas, GraphicsContext gc, Stage primaryStage, PaintDrawActions drawactions) {
         this.canvas = canvas;
         this.gc = gc;
         this.primaryStage = primaryStage;
+        this.drawactions = drawactions;
         }
 
     PaintMenuBar() {}
 
     void setImageSaved(boolean save){
         image_saved = save;
+    }
+
+    Image getImage(){
+        return img;
     }
 
     void saveAs(){
@@ -95,13 +105,49 @@ class PaintMenuBar{
         }
     }
 
-    MenuBar setup_menubar() {
-        // Creates instances so we can access specific data and methods
-        PaintMain main = new PaintMain();
-        PaintWindow window = new PaintWindow();
-        // Grabs the screens resolution size
-        Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
+    void open(){
+        filechooser.setTitle("Open Image");
+        // Opens up the file explorer and stores your file name/ location in filechooser_file
+        filechooser_file = filechooser.showOpenDialog(null);
+        // Tries to read and display the image selected
+        try {
+            InputStream io = new FileInputStream(filechooser_file);
+            img = new Image(io);
+            // Sets Canvas to image specs
+            canvas.setHeight(img.getHeight());
+            canvas.setWidth(img.getWidth());
+            // Displays the image in the upper left corner of canvas
+            gc.drawImage(img, 0, 0);
+            // Makes sure the canvas is large enough to display our image properly but restricts to screen size
+            /*System.out.println("Blag");
+            if (primaryStage.getHeight() < canvas.getHeight() && primaryScreenBounds.getHeight() > canvas.getHeight()){
+                primaryStage.setHeight(canvas.getHeight() + window.scrollpane.getViewportBounds().getWidth());
+            }
+            if (primaryStage.getWidth() < canvas.getWidth() && primaryScreenBounds.getWidth() > canvas.getWidth()){
+                primaryStage.setWidth(canvas.getWidth() + window.scrollpane.getViewportBounds().getHeight());
+            }
+             */
+            // We have opened an image therefore we can save use save as
+            menu_file_save_as.setDisable(false);
+            menu_file_save.setDisable(true);
+            image_saved = false;
+            drawactions.setImage(img);
+            //PaintDrawActions tmp = new PaintDrawActions();
+            //tmp.setImage(img);
+        }
+        // Catches if there is no image selected but it is fine to just close the file explorer and move on
+        catch (NullPointerException ignored) {}
+        // Catches if the selected image is not one of the approved file types
+        catch (IOException | IllegalArgumentException e){
+            // Creates an alert window changes its displayed text and title
+            Alert alert_filetype = new Alert(Alert.AlertType.ERROR);
+            alert_filetype.setContentText("Selected File Is Not A Supported Image Type");
+            alert_filetype.setTitle(main.version_number);
+            alert_filetype.show();
+        }
+    }
 
+    MenuBar setup_menubar() {
         // Use our custom filechooser class with our filters already applied
         PaintFileChooser chooser = new PaintFileChooser();
         filechooser = chooser.setup();
@@ -109,17 +155,17 @@ class PaintMenuBar{
         // Creates the object for the menu bar at the top
         MenuBar menubar = new MenuBar();
         // Creates the pull down tab "File" for the menu bar
-        Menu menu_file = new Menu("File");
-        Menu menu_help = new Menu("Help");
+        Menu menu_file = new Menu("_File");
+        Menu menu_help = new Menu("_Help");
         // Creates 3 new options and adds them under the menu -> file tab in sequence
-        MenuItem menu_file_open = new MenuItem("Open");
-        MenuItem menu_file_save_as = new MenuItem("Save As");
-        menu_file_save = new MenuItem("Save");
+        MenuItem menu_file_open = new MenuItem("_Open");
+        menu_file_save_as = new MenuItem("Save As");
+        menu_file_save = new MenuItem("_Save");
         MenuItem menu_file_settings = new MenuItem("Settings");
-        MenuItem menu_file_exit = new MenuItem("Exit");
+        MenuItem menu_file_exit = new MenuItem("_Exit");
         menu_file.getItems().addAll(menu_file_open, menu_file_save_as, menu_file_save, menu_file_settings, menu_file_exit);
         // Creates About section under menu -> help tab
-        MenuItem menu_help_about = new MenuItem("About");
+        MenuItem menu_help_about = new MenuItem("_About");
         menu_help.getItems().add(menu_help_about);
         // Applies our "File" tab to our menu bar
         menubar.getMenus().addAll(menu_file, menu_help);
@@ -129,40 +175,7 @@ class PaintMenuBar{
 
         // Sets the action for the open button to open file chooser and select appropriate image
         menu_file_open.setOnAction(event -> {
-            filechooser.setTitle("Open Image");
-            // Opens up the file explorer and stores your file name/ location in filechooser_file
-            filechooser_file = filechooser.showOpenDialog(null);
-            // Tries to read and display the image selected
-            try {
-                InputStream io = new FileInputStream(filechooser_file);
-                img = new Image(io);
-                // Sets Canvas to image specs
-                canvas.setHeight(img.getHeight());
-                canvas.setWidth(img.getWidth());
-                // Displays the image in the upper left corner of canvas
-                gc.drawImage(img, 0, 0);
-                // Makes sure the canvas is large enough to display our image properly but restricts to screen size
-                if (primaryStage.getHeight() < canvas.getHeight() && primaryScreenBounds.getHeight() > canvas.getHeight()){
-                    primaryStage.setHeight(canvas.getHeight() + window.scrollpane.getViewportBounds().getWidth());
-                }
-                if (primaryStage.getWidth() < canvas.getWidth() && primaryScreenBounds.getWidth() > canvas.getWidth()){
-                    primaryStage.setWidth(canvas.getWidth() + window.scrollpane.getViewportBounds().getHeight());
-                }
-                // We have opened an image therefore we can save use save as
-                menu_file_save_as.setDisable(false);
-                menu_file_save.setDisable(true);
-                image_saved = false;
-            }
-            // Catches if there is no image selected but it is fine to just close the file explorer and move on
-            catch (NullPointerException ignored) {}
-            // Catches if the selected image is not one of the approved file types
-            catch (IOException | IllegalArgumentException e){
-                // Creates an alert window changes its displayed text and title
-                Alert alert_filetype = new Alert(Alert.AlertType.ERROR);
-                alert_filetype.setContentText("Selected File Is Not A Supported Image Type");
-                alert_filetype.setTitle(main.version_number);
-                alert_filetype.show();
-            }
+            open();
         });
 
         // Sets the action for the save as button to open up the file chooser and save the image
@@ -178,7 +191,7 @@ class PaintMenuBar{
         // Sets the action to open up the settings menu
         menu_file_settings.setOnAction(event -> {
             settings_window.show();
-            System.out.println(settings_window.get_check());
+            //System.out.println(settings_window.get_check());
         });
         //test
 

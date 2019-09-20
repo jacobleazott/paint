@@ -1,6 +1,9 @@
 package sample;
 
 import javafx.geometry.*;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
@@ -14,6 +17,26 @@ import javafx.scene.layout.StackPane;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.layout.Region;
+import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.Image;
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.stage.FileChooser;
+import javafx.geometry.*;
+import javafx.stage.Stage;
+import javafx.stage.Screen;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.ButtonType;
+import java.util.Optional;
 
 // Holds and initializes all of the main internal window aspects
 class PaintWindow {
@@ -40,24 +63,36 @@ class PaintWindow {
         gc = canvas.getGraphicsContext2D();
         gc.setLineWidth(1);
 
+
         // Sets up the buttons for drawing and undoing
         PaintDrawActions drawactions = new PaintDrawActions();
+
+        // Initialize our menubar and pass it our canvas, gc, and stage
+        PaintMenuBar paintmenubar = new PaintMenuBar(canvas, gc, primaryStage, drawactions);
+        // Wrap it all up into one nice VBox
+        MenuBar menubar = paintmenubar.setup_menubar();
+
+
 
         //Wrappers for our layouts to best optimize viewing
         Region target = new StackPane(canvas);
         Group group = new Group(target);
         BorderPane borderpane = new BorderPane();
         borderpane.setCenter(group);
-        borderpane.setLeft(drawactions.setup(canvas, gc));
+        //borderpane.setLeft(drawactions.setup(canvas, gc));
         scrollpane = new ScrollPane(borderpane);
         scrollpane.setFitToWidth(true);
         scrollpane.setFitToHeight(true);
+
+        BorderPane outerpane = new BorderPane();
+        outerpane.setCenter(scrollpane);
+        outerpane.setLeft(drawactions.setup(canvas, gc));
         //scrollpane.setPannable(true);
 
-        // Initialize our menubar and pass it our canvas, gc, and stage
-        PaintMenuBar menubar = new PaintMenuBar(canvas, gc, primaryStage);
-        // Wrap it all up into one nice VBox
-        VBox window = new VBox(menubar.setup_menubar(), scrollpane);
+
+        VBox window = new VBox(menubar, outerpane);
+
+        drawactions.setImage(paintmenubar.getImage());
 
         // Grabs the resolution that the window is being displayed on to better display the window on startup
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
@@ -96,6 +131,16 @@ class PaintWindow {
                 scrollpane.setHvalue((valX + adjustment.getX()) / (groupBounds.getWidth() - viewportBounds.getWidth()));
                 scrollpane.setVvalue((valY + adjustment.getY()) / (groupBounds.getHeight() - viewportBounds.getHeight()));
         }});
+
+        // Keyboard shortcuts
+        KeyCombination kc_ctrl_s = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
+        Runnable rn_kc_ctrl_s = paintmenubar::saveAs;
+
+        KeyCombination kc_ctrl_o = new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN);
+        Runnable rn_kc_ctrl_o = paintmenubar::open;
+
+        main_scene.getAccelerators().put(kc_ctrl_s, rn_kc_ctrl_s);
+        main_scene.getAccelerators().put(kc_ctrl_o, rn_kc_ctrl_o);
 
     return main_scene;
 }}

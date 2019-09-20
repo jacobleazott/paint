@@ -1,5 +1,3 @@
-package sample;
-
 
 /*
  * ===================================================
@@ -28,6 +26,7 @@ package sample;
  * - Line & Rect & Circ ... aren't be updated while drawing
  * ===================================================
  */
+package sample;
 
 import java.awt.image.RenderedImage;
 import java.io.File;
@@ -63,81 +62,12 @@ import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javax.imageio.ImageIO;
-import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.image.Image;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.image.ImageView;
-import javax.imageio.ImageIO;
-import javafx.application.Application;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.event.EventHandler;
-import javafx.scene.Scene;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.ScrollEvent;
-import javafx.stage.Stage;
-import javafx.application.Application;
-import javafx.geometry.Rectangle2D;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
-import javafx.application.Application;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.text.Text;
-import javafx.stage.Stage;
-import javafx.application.Application;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.ArcType;
-import javafx.stage.Stage;
-import javafx.application.Application;
-import javafx.beans.binding.Bindings;
-import javafx.geometry.HPos;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.stage.Stage;
+import static javafx.application.Application.launch;
 
 public class test2 extends Application {
 
+    private Image img;
 
     public void start(Stage primaryStage) {
         Stack<Shape> undoHistory = new Stack();
@@ -351,6 +281,7 @@ public class test2 extends Application {
         undo.setOnAction(e -> {
             if (!undoHistory.empty()) {
                 gc.clearRect(0, 0, 1080, 790);
+                gc.drawImage(img, 0, 0);
                 Shape removedShape = undoHistory.lastElement();
                 if (removedShape.getClass() == Line.class) {
                     Line tempLine = (Line) removedShape;
@@ -471,7 +402,7 @@ public class test2 extends Application {
             if (file != null) {
                 try {
                     InputStream io = new FileInputStream(file);
-                    Image img = new Image(io);
+                    img = new Image(io);
                     gc.drawImage(img, 0, 0);
                 } catch (IOException ex) {
                     System.out.println("Error!");

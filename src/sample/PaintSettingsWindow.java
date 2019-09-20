@@ -80,7 +80,7 @@ public class PaintSettingsWindow {
         splitpane = new SplitPane();
         splitpane.getItems().add(gridpane_settings);
         splitpane.getItems().add(gridpane);
-        System.out.println(window_startup_width);
+        //System.out.println(window_startup_width);
         // Locks Settings display into two parts
         gridpane.maxWidthProperty().bind(splitpane.widthProperty().multiply(0.7));
         gridpane.minWidthProperty().bind(splitpane.widthProperty().multiply(0.7));
