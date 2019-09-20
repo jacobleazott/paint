@@ -39,6 +39,7 @@ class PaintMenuBar{
     private Stage primaryStage;
     private PaintSettingsWindow settings_window = new PaintSettingsWindow();
     private boolean image_saved = false;
+    private MenuBar menubar;
     private MenuItem menu_file_save;
     private MenuItem menu_file_save_as;
     private Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
@@ -48,6 +49,8 @@ class PaintMenuBar{
     private final int HORIZONTAL_GAP = 10;
     private final int CANVAS_ORIGIN_X = 0;
     private final int CANVAS_ORIGIN_Y = 0;
+    //private String background_string = "#EEEEEE";
+    private String[] color_theme;
 
     // Constructors
     PaintMenuBar(Canvas canvas, GraphicsContext gc, Stage primaryStage, PaintDrawActions drawactions) {
@@ -128,7 +131,8 @@ class PaintMenuBar{
             // Displays the image in the upper left corner of canvas
             gc.drawImage(img, CANVAS_ORIGIN_X, CANVAS_ORIGIN_Y);
             // Makes sure the canvas is large enough to display our image properly but restricts to screen size
-            /*System.out.println("Blag");
+            System.out.println("Blag");
+            /*
             if (primaryStage.getHeight() < canvas.getHeight() && primaryScreenBounds.getHeight() > canvas.getHeight()){
                 primaryStage.setHeight(canvas.getHeight() + window.scrollpane.getViewportBounds().getWidth());
             }
@@ -156,12 +160,25 @@ class PaintMenuBar{
         }
     }
 
+    PaintSettingsWindow get_settings(){
+        return settings_window;
+    }
+
+    String[] get_color(){
+        return settings_window.get_color();
+    }
+
+    void update_color(){
+        menubar.setStyle("-fx-background-color: " + settings_window.get_color()[0] + ";"+
+                " -fx-text-fill: " + settings_window.get_color()[3] + ";");
+    }
+
     MenuBar setup_menubar() {
         // Use our custom filechooser class with our filters already applied
         PaintFileChooser chooser = new PaintFileChooser();
         filechooser = chooser.setup();
         // Creates the object for the menu bar at the top
-        MenuBar menubar = new MenuBar();
+        menubar = new MenuBar();
         // Creates the pull down tab "File" for the menu bar
         Menu menu_file = new Menu("_File");
         Menu menu_edit = new Menu("_Edit");
@@ -203,6 +220,9 @@ class PaintMenuBar{
         // Sets the action to open up the settings menu
         menu_file_settings.setOnAction(event -> {
             settings_window.show();
+            color_theme = settings_window.get_color();
+            //System.out.println(settings_window.get_color());
+            //window.set_color(settings_window.get_color());
             //System.out.println(settings_window.get_check());
         });
         //test

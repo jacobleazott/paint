@@ -36,8 +36,9 @@ public class PaintSettingsWindow {
     private RadioButton darkmode_button;
     private RadioButton lightmode_button;
     private ChoiceBox<String> display_theme_choicebox;
-    private String background_string = "#2D2D2D";
-    private String font_string = "#EFEFEF";
+    //private String background_string = "#2D2D2D";
+    private String[] color_theme;
+    //private String font_string = "#EFEFEF";
     private GridPane gridpane_settings;
     private GridPane gridpane;
     private List<Button> settings_list;
@@ -48,11 +49,16 @@ public class PaintSettingsWindow {
     private final int SETTINGS_WINDOW_RATIO_Y = 3;
     private final double INTERNAL_SPLIT_RATIO = 0.7;
     private final int VERTICAL_GAP = 5;
+    private Label display;
+
+    Stage getStage(){
+        return settings_window;
+    }
 
     PaintSettingsWindow() {
-
-        String colors[][] = {{"#3C3F41", "#313335", "2B2B2B", "#BBBBBB", "#606366"}
-        };
+        String colors[][] = {{"#3C3F41", "#313335", "#2B2B2B", "#BBBBBB", "#606366"},
+                             {"#FFFFFF", "#F0F0F0", "#E6EBF0", "#000000", "#999999"}};
+        color_theme = colors[1];
         //background_value.set(Paint.valueOf("3D3D3D"));
         //String background_string = "#2D2D2D";
         gridpane = new GridPane();
@@ -61,13 +67,15 @@ public class PaintSettingsWindow {
         int window_startup_width = (int) (primaryScreenBounds.getWidth() / SETTINGS_WINDOW_RATIO_X);
         int window_startup_height = (int) (primaryScreenBounds.getHeight() / SETTINGS_WINDOW_RATIO_Y);
 
-        String[] display_theme_options = {"Dark Mode", "Light Mode"};
+        String[] display_theme_options = {"Light Mode", "Dark Mode"};
         display_theme_choicebox = new ChoiceBox<String>(FXCollections.observableArrayList(display_theme_options));
-        gridpane.add(new Label("Display------------------------------------------------------"), currrow, currcol);
+
+        display = new Label("Display---------------------------------");
+        gridpane.add(display, currrow, currcol);
         currcol++;
         gridpane.add(display_theme_choicebox, currrow, currcol);
 
-        display_theme_choicebox.setValue("Dark Mode");
+        display_theme_choicebox.setValue("Light Mode");
 
         String[] settings_options = {"General", "Appearance", "Tools", "About", "Directory"};
 
@@ -78,8 +86,8 @@ public class PaintSettingsWindow {
 
         for (int i = 0; i < settings_options.length; i++) {
             Button tmp = new Button(settings_options[i]);
-            tmp.setStyle("-fx-background-color: " + background_string + ";");
-            tmp.setStyle("-fx-text-fill: " + font_string + ";");
+            tmp.setStyle("-fx-background-color: " + color_theme[0] + ";");
+            tmp.setStyle("-fx-text-fill: " + color_theme[3] + ";");
             settings_list.add(new Button(settings_options[i]));
             gridpane_settings.add(settings_list.get(i), currrow, i);
         }
@@ -91,7 +99,7 @@ public class PaintSettingsWindow {
         // Locks Settings display into two parts
         gridpane.maxWidthProperty().bind(splitpane.widthProperty().multiply(INTERNAL_SPLIT_RATIO));
         gridpane.minWidthProperty().bind(splitpane.widthProperty().multiply(INTERNAL_SPLIT_RATIO));
-        gridpane_settings.setStyle("-fx-background-color: " + background_string + ";");
+        gridpane_settings.setStyle("-fx-background-color: " + color_theme[1] + ";");
         //gridpane_settings.setStyle("-fx-text-fill: " + font_string + ";");
 
 
@@ -102,11 +110,11 @@ public class PaintSettingsWindow {
 
         display_theme_choicebox.setOnAction(event -> {
             if (display_theme_choicebox.getValue().equals("Dark Mode")) {
-                background_string = "#2D2D2D";
-                font_string = "#EFEFEF";
+                color_theme = colors[0];
             } else {
-                background_string = "#EFEFEF";
-                font_string = "#2D2D2D";
+                color_theme = colors[1];
+                //background_string = "#EFEFEF";
+                //font_string = "#2D2D2D";
             }
             update_color();
         });
@@ -120,25 +128,27 @@ public class PaintSettingsWindow {
         settings_window.show();
     }
 
-    String get_check() {
-        gridpane_settings.setStyle("-fx-background-color: " + background_string + ";");
-        return display_theme_choicebox.getValue();
-    }
-
     void update_color() {
         Node divider = splitpane.lookup(".split-pane-divider");
         if (divider != null) {
-            divider.setStyle("-fx-background-color: " + background_string + ";");
+            divider.setStyle("-fx-background-color: " + color_theme[0] + ";");
         }
-        splitpane.setStyle("-fx-background-color: " + background_string + ";");
-        gridpane_settings.setStyle("-fx-background-color: " + background_string + ";");
+        splitpane.setStyle("-fx-background-color: " + color_theme[1] + ";");
+        gridpane_settings.setStyle("-fx-background-color: " + color_theme[0] + ";");
         //gridpane_settings.setStyle("-fx-text-fill: " + font_string + ";");
-        gridpane.setStyle("-fx-background-color: " + background_string + ";");
+        gridpane.setStyle("-fx-background-color: " + color_theme[1] + ";");
         //gridpane.setStyle("-fx-text-fill: " + font_string + ";");
         for (Button button : settings_list) {
-            button.setStyle("-fx-background-color: " + background_string + ";" + " -fx-text-fill: " + font_string + ";");
+            button.setStyle("-fx-background-color: " + color_theme[0] + ";" + " -fx-text-fill: " + color_theme[3] + ";");
             //button.setStyle("-fx-text-fill: " + font_string + ";");
         }
+        //display_theme_choicebox.setStyle("-fx-background-color: " + color_theme[1] + ";" + " -fx-text-fill: " + color_theme[3] + ";");
+        //display_theme_choicebox.setStyle("-fx-background-color: " + color_theme[1] + ";" + " label-fx-text-fill: " + color_theme[3] + ";");
+        display.setStyle("-fx-text-fill: " + color_theme[3] + ";");
+    }
+
+    String[] get_color(){
+        return color_theme;
     }
 
 }

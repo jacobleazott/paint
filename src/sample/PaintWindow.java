@@ -22,9 +22,6 @@ import javafx.scene.control.MenuBar;
 // Holds and initializes all of the main internal window aspects
 class PaintWindow {
 
-    private Canvas canvas;
-    private GraphicsContext gc;
-    private Stage primaryStage;
     private final int INITIAL_CANVAS_SIZE_X = 0;
     private final int INITIAL_CANVAS_SIZE_Y = 0;
     private final double INITIAL_WINDOW_RATIO_X = 1.5;
@@ -33,19 +30,66 @@ class PaintWindow {
     private final double ZOOM_SCALE = 1.2;
     private final double ZOOM_LOWER_BOUND = 0;
     private final double ZOOM_UPPER_BOUND = 1;
+    private Canvas canvas;
+    private GraphicsContext gc;
+    private MenuBar menubar;
+    private Stage primaryStage;
+    private BorderPane borderpane = new BorderPane();
+    private String background_string = "#EEEEEE";
+    private PaintDrawActions drawactions;
+    private PaintMenuBar paintmenubar;
+    private String[] color_theme;
+
 
     ScrollPane scrollpane;
 
     // Constructors
     PaintWindow (Stage primaryStage){
         this.primaryStage = primaryStage; }
+
     PaintWindow(){}
 
     // Setters
     void set_Canvas(Canvas canvas){
         this.canvas = canvas; }
+
     void set_gc(GraphicsContext gc){
         this.gc = gc; }
+
+    void set_color(String background_string){
+        this.background_string = background_string;
+        System.out.println(background_string);
+        update_color();
+    }
+
+    void update_color(){
+        borderpane.setStyle("-fx-background-color: " + color_theme[1] + ";");
+        /*
+        menubar.getMenus().get(0).getItems().get(0).setStyle("-fx-background-color: " + color_theme[2] + ";"+ " -fx-text-fill: " + color_theme[3] + ";");
+        menubar.getMenus().get(0).getItems().get(1).setStyle("-fx-background-color: " + color_theme[2] + ";"+ " -fx-text-fill: " + color_theme[3] + ";");
+        menubar.getMenus().get(0).getItems().get(2).setStyle("-fx-background-color: " + color_theme[2] + ";"+ " -fx-text-fill: " + color_theme[3] + ";");
+        menubar.getMenus().get(0).getItems().get(3).setStyle("-fx-background-color: " + color_theme[2] + ";"+ " -fx-text-fill: " + color_theme[3] + ";");
+
+        menubar.getMenus().get(0).getItems().get(0).setStyle("-fx-background-color: " + color_theme[2] + ";"+
+                " -fx-text-fill: " + color_theme[3] + ";" + " -fx-color: " + color_theme[2]);
+        menubar.getMenus().get(0).getItems().get(1).setStyle("-fx-background-color: " + color_theme[2] + ";"+
+                " -fx-text-fill: " + color_theme[3] + ";" + " -fx-color: " + color_theme[2]);
+        menubar.getMenus().get(0).getItems().get(2).setStyle("-fx-background-color: " + color_theme[2] + ";"+
+                " -fx-text-fill: " + color_theme[3] + ";" + " -fx-color: " + color_theme[2]);
+        menubar.getMenus().get(0).getItems().get(3).setStyle("-fx-background-color: " + color_theme[2] + ";"+
+                " -fx-text-fill: " + color_theme[3] + ";" + " -fx-color: " + color_theme[2]);
+        menubar.getMenus().get(0).getItems().get(4).setStyle("-fx-background-color: " + color_theme[2] + ";"+
+                " -fx-text-fill: " + color_theme[3] + ";" + " -fx-color: " + color_theme[2]);
+
+        menubar.getMenus().get(1).getItems().get(0).setStyle("-fx-background-color: " + color_theme[2] + ";"+ " -fx-text-fill: " + color_theme[3] + ";");
+        menubar.getMenus().get(2).getItems().get(0).setStyle("-fx-background-color: " + color_theme[2] + ";"+ " -fx-text-fill: " + color_theme[3] + ";");
+        menubar.getMenus().get(1).setStyle("-fx-background-color: " + color_theme[2] + ";"+ " -fx-text-fill: " + color_theme[3] + ";");
+        menubar.getMenus().get(2).setStyle("-fx-background-color: " + color_theme[2] + ";"+ " -fx-text-fill: " + color_theme[3] + ";");
+        menubar.getMenus().get(0).setStyle("-fx-background-color: " + color_theme[2] + ";"+ " -fx-text-fill: " + color_theme[3] + ";");
+        //menubar.setStyle("-fx-background-color: " + color_theme[2] + ";");
+        menubar.setStyle("-fx-background-color: " + color_theme[2] + ";"+ " -fx-text-fill: " + color_theme[3] + ";");
+         */
+    }
 
     Scene setup_Scene(){
         // Initializes our canvas to where we will draw and the gc which is the handler for the graphics
@@ -54,17 +98,19 @@ class PaintWindow {
         gc.setLineWidth(GRAPHICS_CONTEXT_LINE_WIDTH);
 
         // Sets up the buttons for drawing and undoing
-        PaintDrawActions drawactions = new PaintDrawActions();
+        drawactions = new PaintDrawActions();
 
         // Initialize our menubar and pass it our canvas, gc, and stage
-        PaintMenuBar paintmenubar = new PaintMenuBar(canvas, gc, primaryStage, drawactions);
+        paintmenubar = new PaintMenuBar(canvas, gc, primaryStage, drawactions);
+        //background_string = paintmenubar.get_color();
+        //update_color();
         // Wrap it all up into one nice VBox
-        MenuBar menubar = paintmenubar.setup_menubar();
+        menubar = paintmenubar.setup_menubar();
 
         //Wrappers for our layouts to best optimize viewing
         Region target = new StackPane(canvas);
         Group group = new Group(target);
-        BorderPane borderpane = new BorderPane();
+        //borderpane.setStyle("-fx-background-color: " + background_string + ";");
         borderpane.setCenter(group);
         //borderpane.setLeft(drawactions.setup(canvas, gc));
         scrollpane = new ScrollPane(borderpane);
@@ -90,7 +136,24 @@ class PaintWindow {
         // Make it so the scrollpane and the borderpane both fit to the window properly
         borderpane.prefWidthProperty().bind(main_scene.widthProperty());
         borderpane.prefHeightProperty().bind(main_scene.heightProperty());
+        /*
+        menubar.setOnMousePressed(event -> {
+            background_string = paintmenubar.get_color();
+            update_color();
+        });
 
+         */
+        paintmenubar.get_settings().getStage().setOnCloseRequest(event ->{
+            color_theme = paintmenubar.get_color();
+            //background_string = paintmenubar.get_color();
+            update_color();
+        });
+        /*
+        menubar.getMenus().get(0).setOnShowing( event ->{
+            background_string = paintmenubar.get_color();
+            update_color();
+        });
+        */
         // Action event to allow zoom functionality
         borderpane.setOnScroll(evt -> {
             if (evt.isControlDown()) {
