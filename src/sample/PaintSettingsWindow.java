@@ -56,9 +56,11 @@ public class PaintSettingsWindow {
     }
 
     PaintSettingsWindow() {
-        String colors[][] = {{"#3C3F41", "#313335", "#2B2B2B", "#BBBBBB", "#606366"},
-                             {"#FFFFFF", "#F0F0F0", "#E6EBF0", "#000000", "#999999"}};
-        color_theme = colors[1];
+        String colors[][] = {{"#FFFFFF", "#F0F0F0", "#E6EBF0", "#000000", "#606366"},
+                             {"#3C3F41", "#313335", "#2B2B2B", "#BBBBBB", "#999999"},
+                             {"#D95002", "#F54804", "#FD6814", "#000000", "#999999"},
+                             {"#D95002", "#F54804", "#FD6814", "#5C706F", "#6B8F8D"}};
+        color_theme = colors[0];
         //background_value.set(Paint.valueOf("3D3D3D"));
         //String background_string = "#2D2D2D";
         gridpane = new GridPane();
@@ -67,7 +69,7 @@ public class PaintSettingsWindow {
         int window_startup_width = (int) (primaryScreenBounds.getWidth() / SETTINGS_WINDOW_RATIO_X);
         int window_startup_height = (int) (primaryScreenBounds.getHeight() / SETTINGS_WINDOW_RATIO_Y);
 
-        String[] display_theme_options = {"Light Mode", "Dark Mode"};
+        String[] display_theme_options = {"Light Mode", "Dark Mode", "Pumpkin Mode"};
         display_theme_choicebox = new ChoiceBox<String>(FXCollections.observableArrayList(display_theme_options));
 
         display = new Label("Display---------------------------------");
@@ -86,8 +88,8 @@ public class PaintSettingsWindow {
 
         for (int i = 0; i < settings_options.length; i++) {
             Button tmp = new Button(settings_options[i]);
-            tmp.setStyle("-fx-background-color: " + color_theme[0] + ";");
-            tmp.setStyle("-fx-text-fill: " + color_theme[3] + ";");
+            //tmp.setStyle("-fx-background-color: " + color_theme[0] + ";");
+            //tmp.setStyle("-fx-text-fill: " + color_theme[3] + ";");
             settings_list.add(new Button(settings_options[i]));
             gridpane_settings.add(settings_list.get(i), currrow, i);
         }
@@ -104,17 +106,27 @@ public class PaintSettingsWindow {
 
 
         settings_scene = new Scene(splitpane, window_startup_width, window_startup_height);
+        settings_scene.getStylesheets().add("stuff.css");
         settings_window = new Stage();
         settings_window.setTitle("Settings");
         settings_window.setScene(settings_scene);
+        update_color();
 
         display_theme_choicebox.setOnAction(event -> {
-            if (display_theme_choicebox.getValue().equals("Dark Mode")) {
-                color_theme = colors[0];
-            } else {
-                color_theme = colors[1];
-                //background_string = "#EFEFEF";
-                //font_string = "#2D2D2D";
+            String theme_choice = display_theme_choicebox.getValue();
+            switch (theme_choice) {
+                case "Light Mode":
+                    color_theme = colors[0];
+                    break;
+                case "Dark Mode":
+                    color_theme = colors[1];
+                    break;
+                case "Pumpkin Mode":
+                    color_theme = colors[2];
+                    break;
+                default:
+                    color_theme = colors[0];
+                    break;
             }
             update_color();
         });
@@ -142,7 +154,19 @@ public class PaintSettingsWindow {
             button.setStyle("-fx-background-color: " + color_theme[0] + ";" + " -fx-text-fill: " + color_theme[3] + ";");
             //button.setStyle("-fx-text-fill: " + font_string + ";");
         }
-        //display_theme_choicebox.setStyle("-fx-background-color: " + color_theme[1] + ";" + " -fx-text-fill: " + color_theme[3] + ";");
+        display_theme_choicebox.getStyleClass().add(".choice-box");
+        /*
+        display_theme_choicebox.setStyle("-fx-background-color: " + color_theme[1] + ";" +
+                                         " -fx-text-fill: " + color_theme[3] + ";" +
+                                         //" -fx-border-color: " + color_theme[3] + ";" +
+                                         " -fx-prompt-text-fill: " + color_theme[3] + ";"
+                                         //" -fx-highlight-fill: " + color_theme[3] + ";" +
+                                         //" -fx-highlight-text-fill: " + color_theme[3] + ";"
+                                          );
+
+         */
+
+
         //display_theme_choicebox.setStyle("-fx-background-color: " + color_theme[1] + ";" + " label-fx-text-fill: " + color_theme[3] + ";");
         display.setStyle("-fx-text-fill: " + color_theme[3] + ";");
     }

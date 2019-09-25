@@ -6,10 +6,12 @@
       <change beforePath="$PROJECT_DIR$/out/production/paint/sample/PaintDrawActions.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paint/sample/PaintDrawActions.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/paint/sample/PaintMenuBar.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paint/sample/PaintMenuBar.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/paint/sample/PaintSettingsWindow.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paint/sample/PaintSettingsWindow.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/paint/sample/PaintWindow.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paint/sample/PaintWindow.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/paint/sample/test$1DragData.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/paint/sample/test.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paint/sample/test.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/sample/PaintDrawActions.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/sample/PaintDrawActions.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/sample/PaintMenuBar.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/sample/PaintMenuBar.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/sample/PaintSettingsWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/sample/PaintSettingsWindow.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/sample/PaintWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/sample/PaintWindow.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/sample/test.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/sample/test.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -243,9 +245,9 @@
     <recent_temporary>
       <list>
         <item itemvalue="Application.PaintMain" />
+        <item itemvalue="Application.test" />
         <item itemvalue="Application.test2" />
         <item itemvalue="Application.Paint" />
-        <item itemvalue="Application.test" />
       </list>
     </recent_temporary>
   </component>

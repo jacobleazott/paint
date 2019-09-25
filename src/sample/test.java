@@ -1,136 +1,54 @@
 package sample;
 
-import java.net.MalformedURLException;
 import javafx.application.Application;
-import javafx.geometry.Bounds;
-import javafx.geometry.Point2D;
-import javafx.geometry.Pos;
+import javafx.event.EventHandler;
+import javafx.scene.Cursor;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.SplitPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
+/**
+ * @web http://java-buddy.blogspot.com/
+ */
 public class test extends Application {
 
-    public static Region createContent() {
-        double width = 1000;
-        double height = 1000;
-
-        Canvas canvas = new Canvas(width, height);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-
-        gc.setFill(Color.LIGHTGREY);
-        gc.fillRect(0, 0, width, height);
-
-        gc.setStroke(Color.BLUE);
-        gc.beginPath();
-
-        for (int i = 50; i < width; i += 50) {
-            gc.moveTo(i, 0);
-            gc.lineTo(i, height);
-        }
-
-        for (int i = 50; i < height; i += 50) {
-            gc.moveTo(0, i);
-            gc.lineTo(width, i);
-        }
-        gc.stroke();
-
-        Pane content = new Pane(
-                new Circle(50, 50, 20),
-                new Circle(120, 90, 20, Color.RED),
-                new Circle(200, 70, 20, Color.GREEN)
-        );
-
-        StackPane result = new StackPane(canvas, content);
-        result.setAlignment(Pos.TOP_LEFT);
-
-        class DragData {
-
-            double startX;
-            double startY;
-            double startLayoutX;
-            double startLayoutY;
-            Node dragTarget;
-        }
-
-        return result;
-    }
+    Circle circle_Red, circle_Green, circle_Blue;
+    double orgSceneX, orgSceneY;
+    double orgTranslateX, orgTranslateY;
 
     @Override
-    public void start(Stage primaryStage) throws MalformedURLException {
-        Region zoomTarget = createContent();
-        zoomTarget.setPrefSize(1000, 1000);
-        zoomTarget.setOnDragDetected(evt -> {
-            Node target = (Node) evt.getTarget();
-            while (target != zoomTarget && target != null) {
-                target = target.getParent();
-            }
-            if (target != null) {
-                target.startFullDrag();
-            }
-        });
+    public void start(Stage primaryStage) {
 
-        Group group = new Group(zoomTarget);
+        //Create Circles
+        circle_Red = new Circle(50.0f, Color.RED);
+        circle_Red.setCursor(Cursor.HAND);
+        circle_Red.setOnMousePressed(circleOnMousePressedEventHandler);
+        circle_Red.setOnMouseDragged(circleOnMouseDraggedEventHandler);
 
-        // stackpane for centering the content, in case the ScrollPane viewport
-        // is larget than zoomTarget
-        StackPane content = new StackPane(group);
-        group.layoutBoundsProperty().addListener((observable, oldBounds, newBounds) -> {
-            // keep it at least as large as the content
-            content.setMinWidth(newBounds.getWidth());
-            content.setMinHeight(newBounds.getHeight());
-        });
+        circle_Green = new Circle(50.0f, Color.GREEN);
+        circle_Green.setCursor(Cursor.MOVE);
+        circle_Green.setCenterX(150);
+        circle_Green.setCenterY(150);
+        circle_Green.setOnMousePressed(circleOnMousePressedEventHandler);
+        circle_Green.setOnMouseDragged(circleOnMouseDraggedEventHandler);
 
-        ScrollPane scrollPane = new ScrollPane(content);
-        scrollPane.setPannable(true);
-        scrollPane.viewportBoundsProperty().addListener((observable, oldBounds, newBounds) -> {
-            // use vieport size, if not too small for zoomTarget
-            content.setPrefSize(newBounds.getWidth(), newBounds.getHeight());
-        });
+        circle_Blue = new Circle(50.0f, Color.BLUE);
+        circle_Blue.setCursor(Cursor.CROSSHAIR);
+        circle_Blue.setTranslateX(300);
+        circle_Blue.setTranslateY(100);
+        circle_Blue.setOnMousePressed(circleOnMousePressedEventHandler);
+        circle_Blue.setOnMouseDragged(circleOnMouseDraggedEventHandler);
 
-        content.setOnScroll(evt -> {
-            if (evt.isControlDown()) {
-                evt.consume();
-                final double zoomFactor = evt.getDeltaY() > 0 ? 1.2 : 1 / 1.2;
-                Bounds groupBounds = group.getLayoutBounds();
-                final Bounds viewportBounds = scrollPane.getViewportBounds();
-                // calculate pixel offsets from [0, 1] range
-                double valX = scrollPane.getHvalue() * (groupBounds.getWidth() - viewportBounds.getWidth());
-                double valY = scrollPane.getVvalue() * (groupBounds.getHeight() - viewportBounds.getHeight());
-                // convert content coordinates to zoomTarget coordinates
-                Point2D posInZoomTarget = zoomTarget.parentToLocal(group.parentToLocal(new Point2D(evt.getX(), evt.getY())));
-                // calculate adjustment of scroll position (pixels)
-                Point2D adjustment = zoomTarget.getLocalToParentTransform().deltaTransform(posInZoomTarget.multiply(zoomFactor - 1));
-                // do the resizing
-                zoomTarget.setScaleX(zoomFactor * zoomTarget.getScaleX());
-                zoomTarget.setScaleY(zoomFactor * zoomTarget.getScaleY());
-                // refresh ScrollPane scroll positions & content bounds
-                scrollPane.layout();
-                // convert back to [0, 1] range
-                // (too large/small values are automatically corrected by ScrollPane)
-                groupBounds = group.getLayoutBounds();
-                scrollPane.setHvalue((valX + adjustment.getX()) / (groupBounds.getWidth() - viewportBounds.getWidth()));
-                scrollPane.setVvalue((valY + adjustment.getY()) / (groupBounds.getHeight() - viewportBounds.getHeight()));
-            }
-        });
+        Group root = new Group();
+        root.getChildren().addAll(circle_Red, circle_Green, circle_Blue);
 
-        StackPane left = new StackPane(new Label("Left Menu"));
-        SplitPane root = new SplitPane(left, scrollPane);
+        primaryStage.setResizable(false);
+        primaryStage.setScene(new Scene(root, 400,350));
 
-        Scene scene = new Scene(root, 800, 600);
-
-        primaryStage.setScene(scene);
+        primaryStage.setTitle("java-buddy");
         primaryStage.show();
     }
 
@@ -138,4 +56,30 @@ public class test extends Application {
         launch(args);
     }
 
+    EventHandler<MouseEvent> circleOnMousePressedEventHandler =
+            new EventHandler<MouseEvent>() {
+
+                @Override
+                public void handle(MouseEvent t) {
+                    orgSceneX = t.getSceneX();
+                    orgSceneY = t.getSceneY();
+                    orgTranslateX = ((Circle)(t.getSource())).getTranslateX();
+                    orgTranslateY = ((Circle)(t.getSource())).getTranslateY();
+                }
+            };
+
+    EventHandler<MouseEvent> circleOnMouseDraggedEventHandler =
+            new EventHandler<MouseEvent>() {
+
+                @Override
+                public void handle(MouseEvent t) {
+                    double offsetX = t.getSceneX() - orgSceneX;
+                    double offsetY = t.getSceneY() - orgSceneY;
+                    double newTranslateX = orgTranslateX + offsetX;
+                    double newTranslateY = orgTranslateY + offsetY;
+
+                    ((Circle)(t.getSource())).setTranslateX(newTranslateX);
+                    ((Circle)(t.getSource())).setTranslateY(newTranslateY);
+                }
+            };
 }

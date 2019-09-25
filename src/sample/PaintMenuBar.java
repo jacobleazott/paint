@@ -12,6 +12,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.WritableImage;
 import javafx.stage.FileChooser;
 import javafx.geometry.*;
 import javafx.stage.Stage;
@@ -26,6 +27,9 @@ import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
+import javafx.scene.layout.BorderPane;
 
 
 // Creates and initializes the menu bar with their associated actions
@@ -72,12 +76,24 @@ class PaintMenuBar{
 
     void saveAs(){
         filechooser.setTitle("Save Image");
+        System.out.println("Start");
+        System.out.println((int)canvas.getHeight() + " " + (int)canvas.getWidth());
+        System.out.println((int)canvas.getHeight() + " " + (int)canvas.getWidth());
+        WritableImage writableimage = new WritableImage((int)canvas.getWidth(), (int)canvas.getHeight());
+        canvas.snapshot(null, writableimage);
+        System.out.println("End");
         // Opens up the file explorer and stores your file name/ location in filechooser_file
-        filechooser_file = filechooser.showSaveDialog(null);
+        filechooser_file = filechooser.showSaveDialog(primaryStage);
         // Saves the image to the desired location using the appropriate filters available
-        try { ImageIO.write(SwingFXUtils.fromFXImage(img, null), "", filechooser_file); }
+        try {
+            System.out.println("1");
+            ImageIO.write(SwingFXUtils.fromFXImage(writableimage, null), "png", filechooser_file);
+            System.out.println("2");
+        }
         // Catches if there is no selected location to save but no action necessary
-        catch (IOException | IllegalArgumentException ignored) {}
+        catch (IOException | IllegalArgumentException ignored) {
+            System.out.println("Catch");
+        }
         // Since we have a file location we can just regularly save it
         menu_file_save.setDisable(false);
         image_saved = true;
@@ -131,7 +147,6 @@ class PaintMenuBar{
             // Displays the image in the upper left corner of canvas
             gc.drawImage(img, CANVAS_ORIGIN_X, CANVAS_ORIGIN_Y);
             // Makes sure the canvas is large enough to display our image properly but restricts to screen size
-            System.out.println("Blag");
             /*
             if (primaryStage.getHeight() < canvas.getHeight() && primaryScreenBounds.getHeight() > canvas.getHeight()){
                 primaryStage.setHeight(canvas.getHeight() + window.scrollpane.getViewportBounds().getWidth());

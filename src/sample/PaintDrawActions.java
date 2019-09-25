@@ -2,13 +2,16 @@ package sample;
 
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.*;
 import javafx.scene.text.Font;
+import javafx.scene.image.WritableImage;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
@@ -45,6 +48,7 @@ public class PaintDrawActions {
     private final int GRAPHICS_CONTEXT_LINE_WIDTH = 1;
     private final int CANVAS_ORIGIN_X = 0;
     private final int CANVAS_ORIGIN_Y = 0;
+    private WritableImage selimg;
 
 
     void setImage(Image img){
@@ -59,6 +63,8 @@ public class PaintDrawActions {
         Stack<Shape> undoHistory = new Stack();
         Stack<Shape> redoHistory = new Stack();
         /* ----------btns---------- */
+        ToggleButton selbtn = new ToggleButton("Selection");
+        ToggleButton movbtn = new ToggleButton("Move");
         ToggleButton drowbtn = new ToggleButton("Draw");
         ToggleButton rubberbtn = new ToggleButton("Erase");
         ToggleButton linebtn = new ToggleButton("Line");
@@ -68,7 +74,7 @@ public class PaintDrawActions {
         ToggleButton textbtn = new ToggleButton("Text");
         ToggleButton dropperbtn = new ToggleButton("Dropper");
 
-        ToggleButton[] toolsArr = {drowbtn, rubberbtn, linebtn, rectbtn, circlebtn, elpslebtn, textbtn, dropperbtn};
+        ToggleButton[] toolsArr = {selbtn, movbtn, drowbtn, rubberbtn, linebtn, rectbtn, circlebtn, elpslebtn, textbtn, dropperbtn};
 
         ToggleGroup tools = new ToggleGroup();
 
@@ -108,7 +114,7 @@ public class PaintDrawActions {
         open.setStyle("-fx-background-color: #80334d;");
 
         VBox btns = new VBox(2*TOOL_BAR_H_GAP);
-        btns.getChildren().addAll(drowbtn, rubberbtn, linebtn, rectbtn, circlebtn, elpslebtn,
+        btns.getChildren().addAll(selbtn, movbtn, drowbtn, rubberbtn, linebtn, rectbtn, circlebtn, elpslebtn,
                 textbtn, text,dropperbtn, line_color, cpLine, fill_color, cpFill, line_width, slider, undo, redo);
         btns.setPadding(new Insets(TOOL_BAR_H_GAP));
         btns.setStyle("-fx-background-color: #999");
@@ -119,6 +125,8 @@ public class PaintDrawActions {
 
         Line line = new Line();
         Rectangle rect = new Rectangle();
+        Rectangle selrect = new Rectangle();
+        selrect.setCursor(Cursor.MOVE);
         Circle circ = new Circle();
         Ellipse elps = new Ellipse();
         canvas.setOnMousePressed(e -> {
@@ -166,6 +174,13 @@ public class PaintDrawActions {
                 cpFill.getCustomColors().add(newColor);
                 //cpFill.getCustomColors().set(0, newColor);
                 //gc.setFill(newColor);
+            } else if (selbtn.isSelected()){
+                //gc.setStroke(cpLine.getValue());
+                //Paint fill = Paint.valueOf("#000000");
+                gc.setFill(Paint.valueOf("#FFFFFF"));
+                selrect.setX(e.getX());
+                selrect.setY(e.getY());
+                System.out.println("WOrks");
             }
         });
 
@@ -176,6 +191,10 @@ public class PaintDrawActions {
             } else if (rubberbtn.isSelected()) {
                 double lineWidth = gc.getLineWidth();
                 gc.clearRect(e.getX() - lineWidth / 2, e.getY() - lineWidth / 2, lineWidth, lineWidth);
+            } else if (movbtn.isSelected()){
+                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                //gc.drawImage(selimg, e.getX(), e.getY());
+
             }
         });
 
@@ -241,7 +260,34 @@ public class PaintDrawActions {
                 gc.fillOval(elps.getCenterX(), elps.getCenterY(), elps.getRadiusX(), elps.getRadiusY());
 
                 undoHistory.push(new Ellipse(elps.getCenterX(), elps.getCenterY(), elps.getRadiusX(), elps.getRadiusY()));
+            } else if (selbtn.isSelected()){
+                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                selrect.setWidth(Math.abs((e.getX() - selrect.getX())));
+                selrect.setHeight(Math.abs((e.getY() - selrect.getY())));
+                //rect.setX((rect.getX() > e.getX()) ? e.getX(): rect.getX());
+                if (selrect.getX() > e.getX()) {
+                    selrect.setX(e.getX());
+                }
+                //rect.setY((rect.getY() > e.getY()) ? e.getY(): rect.getY());
+                if (selrect.getY() > e.getY()) {
+                    selrect.setY(e.getY());
+                }
+
+                WritableImage writableimage = new WritableImage((int)canvas.getWidth(), (int)canvas.getHeight());
+                canvas.snapshot(null, writableimage);
+
+                gc.fillRect(selrect.getX(), selrect.getY(), selrect.getWidth(), selrect.getHeight());
+
+                PixelReader reader = writableimage.getPixelReader();
+
+                selimg = new WritableImage(reader, (int)selrect.getX(), (int)selrect.getY(),
+                        (int)(selrect.getWidth()), (int)(selrect.getHeight()));
+
+            } else if (movbtn.isSelected()) {
+                gc.drawImage(selimg, e.getX(), e.getY());
             }
+
+
             redoHistory.clear();
             Shape lastUndo = undoHistory.lastElement();
             lastUndo.setFill(gc.getFill());
