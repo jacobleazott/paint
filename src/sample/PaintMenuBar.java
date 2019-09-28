@@ -1,9 +1,14 @@
 package sample;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -13,6 +18,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.WritableImage;
+import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import javafx.geometry.*;
 import javafx.stage.Stage;
@@ -20,6 +26,8 @@ import javafx.stage.Screen;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ButtonType;
+
+import java.util.ArrayList;
 import java.util.Optional;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -55,6 +63,8 @@ class PaintMenuBar{
     private final int CANVAS_ORIGIN_Y = 0;
     //private String background_string = "#EEEEEE";
     private String[] color_theme;
+    private final int SETTINGS_WINDOW_RATIO_X = 5;
+    private final int SETTINGS_WINDOW_RATIO_Y = 3;
 
     // Constructors
     PaintMenuBar(Canvas canvas, GraphicsContext gc, Stage primaryStage, PaintDrawActions drawactions) {
@@ -210,7 +220,8 @@ class PaintMenuBar{
         menu_edit.getItems().add(menu_edit_size);
         // Creates About section under menu -> help tab
         MenuItem menu_help_about = new MenuItem("_About");
-        menu_help.getItems().add(menu_help_about);
+        MenuItem menu_help_notes = new MenuItem("_Notes");
+        menu_help.getItems().addAll(menu_help_about, menu_help_notes);
         // Applies our "File" tab to our menu bar
         menubar.getMenus().addAll(menu_file, menu_edit, menu_help);
         // This disables our save function since when we launch program there is nothing to save
@@ -287,6 +298,16 @@ class PaintMenuBar{
             alert_help.setContentText("Version Number: " + main.version_number + "\nAuthor: Jacob Leazott");
             alert_help.setTitle(main.version_number);
             alert_help.show();
+        });
+
+        menu_help_notes.setOnAction(event ->{
+            File file = new File("src/Release_Notes_V.1.0.3.txt");
+            try{
+                Desktop.getDesktop().open(file);
+            } catch (IOException e){
+                System.out.println("Error opening file");
+            }
+
         });
 
         // update the canvas and the gc with its changes

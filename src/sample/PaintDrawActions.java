@@ -2,7 +2,6 @@ package sample;
 
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
-import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
@@ -12,29 +11,13 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.scene.image.WritableImage;
-import javafx.application.Platform;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
-import javax.imageio.ImageIO;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.stage.FileChooser;
-import javafx.geometry.*;
-import javafx.stage.Stage;
-import javafx.stage.Screen;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.ButtonType;
-import java.util.Optional;
+import javafx.scene.Group;
+import java.util.ArrayList;
 
 import java.util.Stack;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class PaintDrawActions {
     private Image img;
@@ -49,13 +32,36 @@ public class PaintDrawActions {
     private final int CANVAS_ORIGIN_X = 0;
     private final int CANVAS_ORIGIN_Y = 0;
     private WritableImage selimg;
+    private Group group;
+    private Canvas tmp_canvas;
+    WritableImage tmp_snap;
 
 
     void setImage(Image img){
         this.img = img;
     }
 
+    public void drawNPolygon(int n, GraphicsContext gc, double x0, double y0, double r){
+        double[] xArray = new double[n], yArray = new double[n];
+        for (int i = 0; i < n; i++){
+            xArray[i] = r * Math.cos(2 * i * Math.PI / n) + x0;
+            yArray[i] = r * Math.sin(2 * i * Math.PI / n) + y0;
+        }
+        gc.strokePolygon(xArray, yArray, n);
+        gc.fillPolygon(xArray, yArray, n);
+    }
+
+    public ArrayList createNPolygon(int n, double x0, double y0, double r){
+        ArrayList<Double> points = new ArrayList<Double>(2*n);
+        for(int i = 0; i < n; i++){
+            points.add(r * Math.cos(2 * i * Math.PI / n) + x0);
+            points.add(r * Math.sin(2 * i * Math.PI / n) + y0);
+        }
+        return points;
+    }
+
     VBox setup(Canvas canvas, GraphicsContext gc) {
+        //AtomicReference<Canvas> tmp_canvas = null;
 
         PaintWindow window = new PaintWindow();
         PaintMenuBar menubar = new PaintMenuBar();
@@ -68,13 +74,16 @@ public class PaintDrawActions {
         ToggleButton drowbtn = new ToggleButton("Draw");
         ToggleButton rubberbtn = new ToggleButton("Erase");
         ToggleButton linebtn = new ToggleButton("Line");
-        ToggleButton rectbtn = new ToggleButton("Rectange");
+        ToggleButton rectbtn = new ToggleButton("Rectangle");
         ToggleButton circlebtn = new ToggleButton("Circle");
         ToggleButton elpslebtn = new ToggleButton("Ellipse");
+        ToggleButton tribtn = new ToggleButton("Triangle");
+        ToggleButton polybtn = new ToggleButton("Polygon");
         ToggleButton textbtn = new ToggleButton("Text");
         ToggleButton dropperbtn = new ToggleButton("Dropper");
 
-        ToggleButton[] toolsArr = {selbtn, movbtn, drowbtn, rubberbtn, linebtn, rectbtn, circlebtn, elpslebtn, textbtn, dropperbtn};
+        ToggleButton[] toolsArr = {selbtn, movbtn, drowbtn, rubberbtn, linebtn, rectbtn, circlebtn, elpslebtn, tribtn,
+                            polybtn, textbtn, dropperbtn};
 
         ToggleGroup tools = new ToggleGroup();
 
@@ -114,7 +123,7 @@ public class PaintDrawActions {
         open.setStyle("-fx-background-color: #80334d;");
 
         VBox btns = new VBox(2*TOOL_BAR_H_GAP);
-        btns.getChildren().addAll(selbtn, movbtn, drowbtn, rubberbtn, linebtn, rectbtn, circlebtn, elpslebtn,
+        btns.getChildren().addAll(selbtn, movbtn, drowbtn, rubberbtn, linebtn, rectbtn, circlebtn, elpslebtn, tribtn, polybtn,
                 textbtn, text,dropperbtn, line_color, cpLine, fill_color, cpFill, line_width, slider, undo, redo);
         btns.setPadding(new Insets(TOOL_BAR_H_GAP));
         btns.setStyle("-fx-background-color: #999");
@@ -129,7 +138,13 @@ public class PaintDrawActions {
         selrect.setCursor(Cursor.MOVE);
         Circle circ = new Circle();
         Ellipse elps = new Ellipse();
+        Polygon triangle = new Polygon();
+        Line polygon = new Line();
+
+
         canvas.setOnMousePressed(e -> {
+            tmp_snap = new WritableImage((int)canvas.getWidth(), (int)canvas.getHeight());
+            canvas.snapshot(null, tmp_snap);
             if (drowbtn.isSelected()) {
                 gc.setStroke(cpLine.getValue());
                 gc.beginPath();
@@ -141,6 +156,13 @@ public class PaintDrawActions {
                 gc.setStroke(cpLine.getValue());
                 line.setStartX(e.getX());
                 line.setStartY(e.getY());
+                line.setEndX(e.getX());
+                line.setEndY(e.getY());
+                //gc.strokeLine(line.getStartX(), line.getStartY(), line.getEndX(), line.getEndY());
+                line.setStroke(Paint.valueOf("#000000"));
+                line.setStrokeWidth(gc.getLineWidth());
+                //window.addToGroup(line);
+
             } else if (rectbtn.isSelected()) {
                 gc.setStroke(cpLine.getValue());
                 gc.setFill(cpFill.getValue());
@@ -181,6 +203,14 @@ public class PaintDrawActions {
                 selrect.setX(e.getX());
                 selrect.setY(e.getY());
                 System.out.println("WOrks");
+            } else if (tribtn.isSelected()){
+                triangle.getPoints().add(0, e.getX());
+                triangle.getPoints().add(1, e.getY());
+            } else if (polybtn.isSelected()){
+                gc.setStroke(cpLine.getValue());
+                gc.setFill(cpFill.getValue());
+                polygon.setStartX(e.getX());
+                polygon.setStartY(e.getY());
             }
         });
 
@@ -191,10 +221,76 @@ public class PaintDrawActions {
             } else if (rubberbtn.isSelected()) {
                 double lineWidth = gc.getLineWidth();
                 gc.clearRect(e.getX() - lineWidth / 2, e.getY() - lineWidth / 2, lineWidth, lineWidth);
+            } else if (linebtn.isSelected()){
+                gc.drawImage(tmp_snap, 0, 0);
+                //window.removeToGroup(line);
+                line.setEndX(e.getX());
+                line.setEndY(e.getY());
+                gc.strokeLine(line.getStartX(), line.getStartY(), line.getEndX(), line.getEndY());
+
+            } else if (rectbtn.isSelected()){
+                gc.drawImage(tmp_snap, 0, 0);
+                rect.setWidth(Math.abs((e.getX() - rect.getX())));
+                rect.setHeight(Math.abs((e.getY() - rect.getY())));
+                //rect.setX((rect.getX() > e.getX()) ? e.getX(): rect.getX());
+                if (rect.getX() > e.getX()) {
+                    rect.setX(e.getX());
+                }
+                //rect.setY((rect.getY() > e.getY()) ? e.getY(): rect.getY());
+                if (rect.getY() > e.getY()) {
+                    rect.setY(e.getY());
+                }
+
+                gc.fillRect(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight());
+                gc.strokeRect(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight());
+
+                //undoHistory.push(new Rectangle(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight()));
+            } else if (circlebtn.isSelected()){
+                gc.drawImage(tmp_snap, 0, 0);
+                circ.setRadius((Math.abs(e.getX() - circ.getCenterX()) + Math.abs(e.getY() - circ.getCenterY())) / 2);
+
+                if (circ.getCenterX() > e.getX()) {
+                    circ.setCenterX(e.getX());
+                }
+                if (circ.getCenterY() > e.getY()) {
+                    circ.setCenterY(e.getY());
+                }
+
+                gc.fillOval(circ.getCenterX(), circ.getCenterY(), circ.getRadius(), circ.getRadius());
+                gc.strokeOval(circ.getCenterX(), circ.getCenterY(), circ.getRadius(), circ.getRadius());
+            } else if (elpslebtn.isSelected()){
+                gc.drawImage(tmp_snap, 0, 0);
+                elps.setRadiusX(Math.abs(e.getX() - elps.getCenterX()));
+                elps.setRadiusY(Math.abs(e.getY() - elps.getCenterY()));
+
+                if (elps.getCenterX() > e.getX()) {
+                    elps.setCenterX(e.getX());
+                }
+                if (elps.getCenterY() > e.getY()) {
+                    elps.setCenterY(e.getY());
+                }
+
+                gc.strokeOval(elps.getCenterX(), elps.getCenterY(), elps.getRadiusX(), elps.getRadiusY());
+                gc.fillOval(elps.getCenterX(), elps.getCenterY(), elps.getRadiusX(), elps.getRadiusY());
+
+                //undoHistory.push(new Ellipse(elps.getCenterX(), elps.getCenterY(), elps.getRadiusX(), elps.getRadiusY()));
             } else if (movbtn.isSelected()){
                 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                 //gc.drawImage(selimg, e.getX(), e.getY());
-
+            } else if (tribtn.isSelected()){
+                gc.drawImage(tmp_snap, 0, 0);
+                triangle.getPoints().add(2, e.getX());
+                triangle.getPoints().add(3, triangle.getPoints().get(1));
+                triangle.getPoints().add(4, Math.abs((e.getX() - triangle.getPoints().get(0))));
+                triangle.getPoints().add(5, e.getY());
+                double[] arrx = {triangle.getPoints().get(0), triangle.getPoints().get(2), triangle.getPoints().get(4)};
+                double[] arry = {triangle.getPoints().get(1), triangle.getPoints().get(3), triangle.getPoints().get(5)};
+                gc.strokePolygon(arrx, arry, 3);
+            } else if (polybtn.isSelected()){
+                gc.drawImage(tmp_snap, 0, 0);
+                double rad = Math.max(Math.abs(e.getX() - polygon.getStartX()), Math.abs(e.getY() - polygon.getStartY()));
+                drawNPolygon(12, gc, polygon.getStartX(), polygon.getStartY(), rad);
+                //drawNPolygon(6, gc, e.getX(), e.getY(), rad);
             }
         });
 
@@ -212,6 +308,7 @@ public class PaintDrawActions {
                 line.setEndX(e.getX());
                 line.setEndY(e.getY());
                 gc.strokeLine(line.getStartX(), line.getStartY(), line.getEndX(), line.getEndY());
+                //window.removeToGroup(line);
 
                 undoHistory.push(new Line(line.getStartX(), line.getStartY(), line.getEndX(), line.getEndY()));
             } else if (rectbtn.isSelected()) {
@@ -285,6 +382,21 @@ public class PaintDrawActions {
 
             } else if (movbtn.isSelected()) {
                 gc.drawImage(selimg, e.getX(), e.getY());
+            } else if (tribtn.isSelected()){
+                triangle.getPoints().add(2, e.getX());
+                triangle.getPoints().add(3, triangle.getPoints().get(1));
+                triangle.getPoints().add(4, Math.abs((e.getX() - triangle.getPoints().get(0))));
+                triangle.getPoints().add(5, e.getY());
+                double[] arrx = {triangle.getPoints().get(0), triangle.getPoints().get(2), triangle.getPoints().get(4)};
+                double[] arry = {triangle.getPoints().get(1), triangle.getPoints().get(3), triangle.getPoints().get(5)};
+                gc.strokePolygon(arrx, arry, 3);
+                undoHistory.push(triangle);
+            } else if (polybtn.isSelected()){
+                //gc.drawImage(tmp_snap, 0, 0);
+                double rad = Math.max(Math.abs(e.getX() - polygon.getStartX()), Math.abs(e.getY() - polygon.getStartY()));
+                drawNPolygon(12, gc, polygon.getStartX(), polygon.getStartY(), rad);
+                //drawNPolygon(6, gc, e.getX(), e.getY(), rad);
+                undoHistory.push(polygon);
             }
 
 
@@ -430,6 +542,7 @@ public class PaintDrawActions {
                 }
             });
         });
+        //window.set_group(group);
         window.set_Canvas(canvas);
         return btns;
     }

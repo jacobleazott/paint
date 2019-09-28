@@ -5,7 +5,7 @@ import javafx.stage.Stage;
 
 public class PaintMain extends Application {
 
-    String version_number = "Pain(t) V.1.0.1";
+    String version_number = "Pain(t) V.1.0.4";
 
     public void start(Stage primaryStage){
         // Sets the title of the window

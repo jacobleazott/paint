@@ -18,6 +18,11 @@ import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.layout.Region;
 import javafx.scene.control.MenuBar;
+import javafx.scene.shape.*;
+import javafx.scene.image.WritableImage;
+
+
+import java.lang.reflect.InvocationTargetException;
 
 // Holds and initializes all of the main internal window aspects
 class PaintWindow {
@@ -39,6 +44,8 @@ class PaintWindow {
     private PaintDrawActions drawactions;
     private PaintMenuBar paintmenubar;
     private String[] color_theme;
+    private Group gr = new Group();
+    private Group group;
 
 
     ScrollPane scrollpane;
@@ -60,6 +67,28 @@ class PaintWindow {
         this.background_string = background_string;
         System.out.println(background_string);
         update_color();
+    }
+
+    void set_group(Group gr){
+        //this.gr = gr;
+        try{
+            //System.out.println(gr.getChildren());
+            //group.getChildren().add(gr);
+            //borderpane.setRight(gr);
+            //System.out.println(group.getChildren());
+        }
+        catch(NullPointerException e){
+            System.out.println("hey");
+        }
+    }
+
+    void addToGroup(Shape shape){
+        gr.getChildren().add(shape);
+    }
+
+    void removeToGroup(Shape shape){
+        gr = new Group();
+        //group.getChildren().remove(shape);
     }
 
     void update_color(){
@@ -105,13 +134,32 @@ class PaintWindow {
         //background_string = paintmenubar.get_color();
         //update_color();
         // Wrap it all up into one nice VBox
-        menubar = paintmenubar.setup_menubar();
 
+
+        /*
+        Line line = new Line();
+
+        //Setting the properties to a line
+        line.setStartX(100.0);
+        line.setStartY(150.0);
+        line.setEndX(500.0);
+        line.setEndY(150.0);
+
+        gr.getChildren().add(line);
+        */
+
+        //g.getChildren().addAll(gr, target);
+        //Group g = new Group(group);
+        //borderpane.setStyle("-fx-background-color: " + background_string + ";");
+
+        menubar = paintmenubar.setup_menubar();
+        //group.getChildren().add(canvas);
         //Wrappers for our layouts to best optimize viewing
         Region target = new StackPane(canvas);
-        Group group = new Group(target);
-        //borderpane.setStyle("-fx-background-color: " + background_string + ";");
+        group = new Group(target);
+        //Group g = new Group();
         borderpane.setCenter(group);
+        //borderpane.setRight(gr);
         //borderpane.setLeft(drawactions.setup(canvas, gc));
         scrollpane = new ScrollPane(borderpane);
         scrollpane.setFitToWidth(true);
@@ -181,6 +229,7 @@ class PaintWindow {
                 groupBounds = group.getLayoutBounds();
                 scrollpane.setHvalue((valX + adjustment.getX()) / (groupBounds.getWidth() - viewportBounds.getWidth()));
                 scrollpane.setVvalue((valY + adjustment.getY()) / (groupBounds.getHeight() - viewportBounds.getHeight()));
+                System.out.println(gr.getChildren());
         }});
 
         // Keyboard shortcuts
