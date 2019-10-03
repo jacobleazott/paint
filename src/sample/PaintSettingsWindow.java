@@ -106,7 +106,7 @@ public class PaintSettingsWindow {
 
 
         settings_scene = new Scene(splitpane, window_startup_width, window_startup_height);
-        settings_scene.getStylesheets().add("stuff.css");
+        settings_scene.getStylesheets().addAll("light.css", "dark.css", "pumpkin.css");
         settings_window = new Stage();
         settings_window.setTitle("Settings");
         settings_window.setScene(settings_scene);
@@ -116,12 +116,18 @@ public class PaintSettingsWindow {
             String theme_choice = display_theme_choicebox.getValue();
             switch (theme_choice) {
                 case "Light Mode":
+                    settings_scene.getStylesheets().clear();
+                    settings_scene.getStylesheets().add("light.css");
                     color_theme = colors[0];
                     break;
                 case "Dark Mode":
+                    settings_scene.getStylesheets().clear();
+                    settings_scene.getStylesheets().add("dark.css");
                     color_theme = colors[1];
                     break;
                 case "Pumpkin Mode":
+                    settings_scene.getStylesheets().clear();
+                    settings_scene.getStylesheets().add("pumpkin.css");
                     color_theme = colors[2];
                     break;
                 default:
@@ -155,19 +161,7 @@ public class PaintSettingsWindow {
             //button.setStyle("-fx-text-fill: " + font_string + ";");
         }
         display_theme_choicebox.getStyleClass().add(".choice-box");
-        /*
-        display_theme_choicebox.setStyle("-fx-background-color: " + color_theme[1] + ";" +
-                                         " -fx-text-fill: " + color_theme[3] + ";" +
-                                         //" -fx-border-color: " + color_theme[3] + ";" +
-                                         " -fx-prompt-text-fill: " + color_theme[3] + ";"
-                                         //" -fx-highlight-fill: " + color_theme[3] + ";" +
-                                         //" -fx-highlight-text-fill: " + color_theme[3] + ";"
-                                          );
 
-         */
-
-
-        //display_theme_choicebox.setStyle("-fx-background-color: " + color_theme[1] + ";" + " label-fx-text-fill: " + color_theme[3] + ";");
         display.setStyle("-fx-text-fill: " + color_theme[3] + ";");
     }
 

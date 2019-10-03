@@ -1,85 +1,134 @@
 package sample;
 
+import javafx.concurrent.Task;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import javafx.application.Application;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.Cursor;
-import javafx.scene.Group;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
-/**
- * @web http://java-buddy.blogspot.com/
- */
-public class test extends Application {
+class FiboCalcTask extends Task<Long> {
 
-    Circle circle_Red, circle_Green, circle_Blue;
-    double orgSceneX, orgSceneY;
-    double orgTranslateX, orgTranslateY;
+    private final int n;
+
+    public FiboCalcTask(int n) {
+        this.n = n;
+    }
 
     @Override
-    public void start(Stage primaryStage) {
-
-        //Create Circles
-        circle_Red = new Circle(50.0f, Color.RED);
-        circle_Red.setCursor(Cursor.HAND);
-        circle_Red.setOnMousePressed(circleOnMousePressedEventHandler);
-        circle_Red.setOnMouseDragged(circleOnMouseDraggedEventHandler);
-
-        circle_Green = new Circle(50.0f, Color.GREEN);
-        circle_Green.setCursor(Cursor.MOVE);
-        circle_Green.setCenterX(150);
-        circle_Green.setCenterY(150);
-        circle_Green.setOnMousePressed(circleOnMousePressedEventHandler);
-        circle_Green.setOnMouseDragged(circleOnMouseDraggedEventHandler);
-
-        circle_Blue = new Circle(50.0f, Color.BLUE);
-        circle_Blue.setCursor(Cursor.CROSSHAIR);
-        circle_Blue.setTranslateX(300);
-        circle_Blue.setTranslateY(100);
-        circle_Blue.setOnMousePressed(circleOnMousePressedEventHandler);
-        circle_Blue.setOnMouseDragged(circleOnMouseDraggedEventHandler);
-
-        Group root = new Group();
-        root.getChildren().addAll(circle_Red, circle_Green, circle_Blue);
-
-        primaryStage.setResizable(false);
-        primaryStage.setScene(new Scene(root, 400,350));
-
-        primaryStage.setTitle("java-buddy");
-        primaryStage.show();
+    protected Long call() throws Exception {
+        updateMessage("    Processing... ");
+        long result = fibonacci(n);
+        updateMessage("    Done.  ");
+        return result;
     }
+
+    public long fibonacci(long number) {
+        if (number == 0 || number == 1)
+            return number;
+        else
+            return fibonacci(number - 1) + fibonacci(number - 2);
+    }
+}
+
+//package sample;
+
+
+
+public class test extends Application {
+
+    private long n1 = 0;
+    private long n2 = 1;
+    private int num = 1;
 
     public static void main(String[] args) {
-        launch(args);
+        Application.launch(args);
     }
 
-    EventHandler<MouseEvent> circleOnMousePressedEventHandler =
-            new EventHandler<MouseEvent>() {
+    @Override
+    public void start(Stage stage) throws Exception {
+        BorderPane root=new BorderPane();
+        root.setCenter(createInterface());
+        Scene scene = new Scene(root, 300, 275);
+        stage.setTitle("Multithreading in JavaFX");
+        stage.setScene(scene);
+        stage.show();
+    }
 
-                @Override
-                public void handle(MouseEvent t) {
-                    orgSceneX = t.getSceneX();
-                    orgSceneY = t.getSceneY();
-                    orgTranslateX = ((Circle)(t.getSource())).getTranslateX();
-                    orgTranslateY = ((Circle)(t.getSource())).getTranslateY();
-                }
-            };
+    private GridPane createInterface() {
+        GridPane gp = new GridPane();
+        TextField tf1 = new TextField();
+        Button btnStart = new Button("Start");
+        Button btnNext = new Button("Next Fibonacci Number");
+        Label lbl1 = new Label();
+        Label lbl2 = new Label();
+        Label lbl3 = new Label();
+        Label lbl4 = new Label();
 
-    EventHandler<MouseEvent> circleOnMouseDraggedEventHandler =
-            new EventHandler<MouseEvent>() {
+        btnStart.setOnAction(new
+                                     EventHandler<ActionEvent>() {
+                                         @Override
+                                         public void handle(ActionEvent event) {
+                                             try {
+                                                 int ival = Integer.parseInt(tf1.getText());
+                                                 FiboCalcTask task = new FiboCalcTask(ival);
+                                                 lbl1.textProperty().bind(task.messageProperty());
 
-                @Override
-                public void handle(MouseEvent t) {
-                    double offsetX = t.getSceneX() - orgSceneX;
-                    double offsetY = t.getSceneY() - orgSceneY;
-                    double newTranslateX = orgTranslateX + offsetX;
-                    double newTranslateY = orgTranslateY + offsetY;
+                                                 task.setOnRunning((succeesesEvent) -> {
+                                                     btnStart.setDisable(true);
+                                                     lbl2.setText("");
+                                                 });
 
-                    ((Circle)(t.getSource())).setTranslateX(newTranslateX);
-                    ((Circle)(t.getSource())).setTranslateY(newTranslateY);
-                }
-            };
+                                                 task.setOnSucceeded((succeededEvent) -> {
+                                                     lbl2.setText(task.getValue().toString());
+                                                     btnStart.setDisable(false);
+                                                 });
+
+                                                 ExecutorService executorService
+                                                         = Executors.newFixedThreadPool(1);
+                                                 executorService.execute(task);
+                                                 executorService.shutdown();
+
+                                             } catch (NumberFormatException e) {
+                                                 tf1.setText("Enter a number");
+                                                 tf1.selectAll();
+                                                 tf1.requestFocus();
+                                             }
+                                         }
+                                     });
+
+        btnNext.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                lbl3.setText(num+"the Fibonacci number is = ");
+                lbl4.setText(String.valueOf(n2));
+                long temp = n1 + n2;
+                n1 = n2;
+                n2 = temp;
+                ++num;
+            }
+        });
+
+        gp.add(new Label("Enter a number: "), 0, 0);
+        gp.add(tf1, 1, 0);
+        gp.add(lbl1, 2, 0);
+        gp.add(btnStart, 0, 1);
+        gp.add(lbl2, 1, 1);
+        gp.add(lbl3, 0, 2);
+        gp.add(lbl4, 1, 2);
+        gp.add(btnNext, 0, 3);
+        gp.setPadding(new Insets(10.0,10.0,10.0,10.0));
+
+        return gp;
+    }
 }

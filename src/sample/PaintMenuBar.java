@@ -26,18 +26,15 @@ import javafx.stage.Screen;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ButtonType;
-
 import java.util.ArrayList;
 import java.util.Optional;
-import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
-import javafx.scene.image.Image;
-import javafx.scene.image.WritableImage;
-import javafx.scene.layout.BorderPane;
+
+import javafx.concurrent.Task;
+import java.util.Timer;
+import java.util.TimerTask;
+
 
 
 // Creates and initializes the menu bar with their associated actions
@@ -46,7 +43,7 @@ class PaintMenuBar{
     private File filechooser_file;
     private FileChooser filechooser;
     private Image img;
-    private Canvas canvas;
+    volatile Canvas canvas;
     private GraphicsContext gc;
     private Stage primaryStage;
     private PaintSettingsWindow settings_window = new PaintSettingsWindow();
@@ -86,19 +83,13 @@ class PaintMenuBar{
 
     void saveAs(){
         filechooser.setTitle("Save Image");
-        System.out.println("Start");
-        System.out.println((int)canvas.getHeight() + " " + (int)canvas.getWidth());
-        System.out.println((int)canvas.getHeight() + " " + (int)canvas.getWidth());
         WritableImage writableimage = new WritableImage((int)canvas.getWidth(), (int)canvas.getHeight());
         canvas.snapshot(null, writableimage);
-        System.out.println("End");
         // Opens up the file explorer and stores your file name/ location in filechooser_file
         filechooser_file = filechooser.showSaveDialog(primaryStage);
         // Saves the image to the desired location using the appropriate filters available
         try {
-            System.out.println("1");
             ImageIO.write(SwingFXUtils.fromFXImage(writableimage, null), "png", filechooser_file);
-            System.out.println("2");
         }
         // Catches if there is no selected location to save but no action necessary
         catch (IOException | IllegalArgumentException ignored) {
@@ -110,12 +101,29 @@ class PaintMenuBar{
     }
 
     void save(){
-        filechooser.setTitle("Save Image");
-        // Saves the image to the desired location using the appropriate filters available
-        try { ImageIO.write(SwingFXUtils.fromFXImage(img, null), "", filechooser_file); }
-        // Catches if there is no selected location to save but no action necessary
-        catch (IOException | IllegalArgumentException ignored) { }
+        try{
+            WritableImage writableimage = new WritableImage((int)canvas.getWidth(), (int)canvas.getHeight());
+            canvas.snapshot(null, writableimage);
+            ImageIO.write(SwingFXUtils.fromFXImage(writableimage, null), "png", filechooser_file);
+            System.out.println("Image Saved Successfully");
+        }
+        catch (IOException | IllegalArgumentException e){
+            System.out.println("Error Saving Image");
+        }
         image_saved = true;
+    }
+
+    void autoSave(){
+        try{
+            WritableImage writableimage = new WritableImage((int)canvas.getWidth(), (int)canvas.getHeight());
+            canvas.snapshot(null, writableimage);
+            File tmp = new File("tmp");
+            ImageIO.write(SwingFXUtils.fromFXImage(writableimage, null), "png", tmp);
+            System.out.println("Image Saved Successfully");
+        }
+        catch (IOException | IllegalArgumentException e){
+            System.out.println("Error Saving Image");
+        }
     }
 
     void closeAlert(){
@@ -228,6 +236,20 @@ class PaintMenuBar{
         menu_file_save_as.setDisable(true);
         menu_file_save.setDisable(true);
 
+        ///////////////////////////////////////////////////////////////////////////
+        ///////////////// Timer Stuff
+        ////////////////////////////////////////////////////////////////////////////
+        new java.util.Timer().schedule(
+                new java.util.TimerTask(){
+                    @Override
+                    public void run(){
+                        try {
+                            Platform.runLater(() -> autoSave());
+                        }
+                        catch(NullPointerException e) {
+                            System.out.println("Auto Save Unsuccessful");
+                        }}}, 5000, 5000 );
+
         // Sets the action for the open button to open file chooser and select appropriate image
         menu_file_open.setOnAction(event -> {
             open();
@@ -307,7 +329,6 @@ class PaintMenuBar{
             } catch (IOException e){
                 System.out.println("Error opening file");
             }
-
         });
 
         // update the canvas and the gc with its changes

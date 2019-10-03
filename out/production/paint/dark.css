@@ -1,0 +1,23 @@
+* {
+	-fx-back1: #3C3F41;
+	-fx-back2: #313335;
+	-fx-back3: #2B2B2B;
+	-fx-font1: #BBBBBB;
+	-fx-font2: #999999;
+}
+
+// Background color of the whole context menu
+.choice-box .context-menu { -fx-background-color: -fx-back1; }
+// Text color of the selected context menu
+.choice-box .label { -fx-text-fill: -fx-font1; }
+// Focused item background color in the list
+.choice-box .menu-item:focused { -fx-background-color: -fx-back2; }
+// Text color of non-focused items in the list
+.choice-box .menu-item > .label { -fx-text-fill: -fx-font1; }
+// Text color of focused item in the list
+.choice-box .menu-item:focused > .label { -fx-text-fill: -fx-font1; }
+
+.choice-box {
+	-fx-background-color: -fx-back1;
+	-fx-mark-color: -fx-font1;
+}
