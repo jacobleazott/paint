@@ -1,6 +1,15 @@
 package sample;
 
+import javafx.animation.Animation;
+import javafx.animation.AnimationTimer;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.geometry.*;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyCode;
@@ -20,9 +29,13 @@ import javafx.scene.layout.Region;
 import javafx.scene.control.MenuBar;
 import javafx.scene.shape.*;
 import javafx.scene.image.WritableImage;
+import javafx.util.Duration;
 
 
 import java.lang.reflect.InvocationTargetException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Timer;
 
 // Holds and initializes all of the main internal window aspects
 class PaintWindow {
@@ -46,6 +59,16 @@ class PaintWindow {
     private String[] color_theme;
     private Group gr = new Group();
     private Group group;
+    private VBox draw_buttons;
+    //Label time_label = new Label();
+    private Timer timer_a;
+    private AnimationTimer timer_b;
+    private Integer frame = 0;
+    private Integer start_time = 15;
+    private Timeline timeline;
+    private Label time_label = new Label();
+    private Integer time_seconds = start_time;
+
 
 
     ScrollPane scrollpane;
@@ -69,56 +92,67 @@ class PaintWindow {
         update_color();
     }
 
-    void set_group(Group gr){
-        //this.gr = gr;
-        try{
-            //System.out.println(gr.getChildren());
-            //group.getChildren().add(gr);
-            //borderpane.setRight(gr);
-            //System.out.println(group.getChildren());
-        }
-        catch(NullPointerException e){
-            System.out.println("hey");
-        }
-    }
-
-    void addToGroup(Shape shape){
-        gr.getChildren().add(shape);
-    }
-
-    void removeToGroup(Shape shape){
-        gr = new Group();
-        //group.getChildren().remove(shape);
-    }
-
     void update_color(){
-        borderpane.setStyle("-fx-background-color: " + color_theme[1] + ";");
-        /*
-        menubar.getMenus().get(0).getItems().get(0).setStyle("-fx-background-color: " + color_theme[2] + ";"+ " -fx-text-fill: " + color_theme[3] + ";");
-        menubar.getMenus().get(0).getItems().get(1).setStyle("-fx-background-color: " + color_theme[2] + ";"+ " -fx-text-fill: " + color_theme[3] + ";");
-        menubar.getMenus().get(0).getItems().get(2).setStyle("-fx-background-color: " + color_theme[2] + ";"+ " -fx-text-fill: " + color_theme[3] + ";");
-        menubar.getMenus().get(0).getItems().get(3).setStyle("-fx-background-color: " + color_theme[2] + ";"+ " -fx-text-fill: " + color_theme[3] + ";");
-
-        menubar.getMenus().get(0).getItems().get(0).setStyle("-fx-background-color: " + color_theme[2] + ";"+
-                " -fx-text-fill: " + color_theme[3] + ";" + " -fx-color: " + color_theme[2]);
-        menubar.getMenus().get(0).getItems().get(1).setStyle("-fx-background-color: " + color_theme[2] + ";"+
-                " -fx-text-fill: " + color_theme[3] + ";" + " -fx-color: " + color_theme[2]);
-        menubar.getMenus().get(0).getItems().get(2).setStyle("-fx-background-color: " + color_theme[2] + ";"+
-                " -fx-text-fill: " + color_theme[3] + ";" + " -fx-color: " + color_theme[2]);
-        menubar.getMenus().get(0).getItems().get(3).setStyle("-fx-background-color: " + color_theme[2] + ";"+
-                " -fx-text-fill: " + color_theme[3] + ";" + " -fx-color: " + color_theme[2]);
-        menubar.getMenus().get(0).getItems().get(4).setStyle("-fx-background-color: " + color_theme[2] + ";"+
-                " -fx-text-fill: " + color_theme[3] + ";" + " -fx-color: " + color_theme[2]);
-
-        menubar.getMenus().get(1).getItems().get(0).setStyle("-fx-background-color: " + color_theme[2] + ";"+ " -fx-text-fill: " + color_theme[3] + ";");
-        menubar.getMenus().get(2).getItems().get(0).setStyle("-fx-background-color: " + color_theme[2] + ";"+ " -fx-text-fill: " + color_theme[3] + ";");
-        menubar.getMenus().get(1).setStyle("-fx-background-color: " + color_theme[2] + ";"+ " -fx-text-fill: " + color_theme[3] + ";");
-        menubar.getMenus().get(2).setStyle("-fx-background-color: " + color_theme[2] + ";"+ " -fx-text-fill: " + color_theme[3] + ";");
-        menubar.getMenus().get(0).setStyle("-fx-background-color: " + color_theme[2] + ";"+ " -fx-text-fill: " + color_theme[3] + ";");
-        //menubar.setStyle("-fx-background-color: " + color_theme[2] + ";");
-        menubar.setStyle("-fx-background-color: " + color_theme[2] + ";"+ " -fx-text-fill: " + color_theme[3] + ";");
-         */
+        borderpane.getStylesheets().clear();
+        borderpane.getStylesheets().add(paintmenubar.get_settings().getCSS());
+        borderpane.getStyleClass().add(".borderpane");
+        borderpane.setId("custom-label");
+        //borderpane.setStyle("-fx-background-color: " + color_theme[1] + ";");
+        draw_buttons.getStylesheets().clear();
+        draw_buttons.getStylesheets().add(paintmenubar.get_settings().getCSS());
+        //draw_buttons.getStyleClass().add("#custom-button");
+        //draw_buttons.setId("custom-button");
+        draw_buttons.setId("custom-label");
+        //draw_buttons.getStyleClass().add("custom-label");
+        //draw_buttons.setStyle("-fx-background-color: #111111;");
+        for (int i = 0; i < draw_buttons.getChildren().size(); i++){
+            //draw_buttons.getChildren().get(i).setId("custom-button");
+            draw_buttons.getChildren().get(i).getStyleClass().add(".button");
+            if (draw_buttons.getChildren().get(i) instanceof Label){
+                draw_buttons.getChildren().get(i).getStyleClass().clear();
+                draw_buttons.getChildren().get(i).setId("custom-label");
+            }
+            //draw_buttons.getChildren().get(i).getStyleClass().add("#custom-button");
+            //System.out.println(draw_buttons.getChildren().get(i));
+        }
     }
+
+    void resetTimer(){
+        start_time = paintmenubar.get_settings().autosave_time;
+        setupTimer();
+        timeline.playFromStart();
+        paintmenubar.autoSave();
+        if (paintmenubar.get_settings().display_auto_save.isSelected()){
+            borderpane.setTop(time_label);
+            BorderPane.setAlignment(time_label, Pos.TOP_LEFT);
+        } else {
+            borderpane.getChildren().remove(time_label);
+        }
+    }
+
+    void setupTimer(){
+        if (timeline != null){
+            timeline.stop();
+        }
+        time_seconds = start_time;
+
+        time_label.setText(time_seconds.toString());
+        timeline = new Timeline();
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.getKeyFrames().add(
+                new KeyFrame(Duration.seconds(1),
+                        new EventHandler() {
+                            @Override
+                            public void handle(Event event) {
+                                time_seconds --;
+                                time_label.setText(time_seconds.toString());
+                                if (time_seconds <= 0){
+                                    timeline.stop();
+                                    resetTimer();
+                                }
+                            }}));
+    }
+
 
     Scene setup_Scene(){
         // Initializes our canvas to where we will draw and the gc which is the handler for the graphics
@@ -131,29 +165,8 @@ class PaintWindow {
 
         // Initialize our menubar and pass it our canvas, gc, and stage
         paintmenubar = new PaintMenuBar(canvas, gc, primaryStage, drawactions);
-        //background_string = paintmenubar.get_color();
-        //update_color();
-        // Wrap it all up into one nice VBox
-
-
-        /*
-        Line line = new Line();
-
-        //Setting the properties to a line
-        line.setStartX(100.0);
-        line.setStartY(150.0);
-        line.setEndX(500.0);
-        line.setEndY(150.0);
-
-        gr.getChildren().add(line);
-        */
-
-        //g.getChildren().addAll(gr, target);
-        //Group g = new Group(group);
-        //borderpane.setStyle("-fx-background-color: " + background_string + ";");
 
         menubar = paintmenubar.setup_menubar();
-        //group.getChildren().add(canvas);
         //Wrappers for our layouts to best optimize viewing
         Region target = new StackPane(canvas);
         group = new Group(target);
@@ -167,7 +180,8 @@ class PaintWindow {
 
         BorderPane outerpane = new BorderPane();
         outerpane.setCenter(scrollpane);
-        outerpane.setLeft(drawactions.setup(canvas, gc));
+        draw_buttons = drawactions.setup(canvas, gc);
+        outerpane.setLeft(draw_buttons);
         //scrollpane.setPannable(true);
 
         VBox window = new VBox(menubar, outerpane);
@@ -184,24 +198,19 @@ class PaintWindow {
         // Make it so the scrollpane and the borderpane both fit to the window properly
         borderpane.prefWidthProperty().bind(main_scene.widthProperty());
         borderpane.prefHeightProperty().bind(main_scene.heightProperty());
-        /*
-        menubar.setOnMousePressed(event -> {
-            background_string = paintmenubar.get_color();
+
+
+
+//////////////////////////////////////////////////////////////////////////
+        time_label.setText(time_seconds.toString());
+        resetTimer();
+
+        paintmenubar.get_settings().getStage().setOnCloseRequest(event ->{
             update_color();
+            paintmenubar.update_color();
+            resetTimer();
         });
 
-         */
-        paintmenubar.get_settings().getStage().setOnCloseRequest(event ->{
-            color_theme = paintmenubar.get_color();
-            //background_string = paintmenubar.get_color();
-            update_color();
-        });
-        /*
-        menubar.getMenus().get(0).setOnShowing( event ->{
-            background_string = paintmenubar.get_color();
-            update_color();
-        });
-        */
         // Action event to allow zoom functionality
         borderpane.setOnScroll(evt -> {
             if (evt.isControlDown()) {
@@ -229,7 +238,7 @@ class PaintWindow {
                 groupBounds = group.getLayoutBounds();
                 scrollpane.setHvalue((valX + adjustment.getX()) / (groupBounds.getWidth() - viewportBounds.getWidth()));
                 scrollpane.setVvalue((valY + adjustment.getY()) / (groupBounds.getHeight() - viewportBounds.getHeight()));
-                System.out.println(gr.getChildren());
+                //System.out.println(gr.getChildren());
         }});
 
         // Keyboard shortcuts

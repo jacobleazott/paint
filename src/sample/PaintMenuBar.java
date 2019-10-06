@@ -1,5 +1,8 @@
 package sample;
 
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.embed.swing.SwingFXUtils;
@@ -26,12 +29,17 @@ import javafx.stage.Screen;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ButtonType;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Optional;
 import javafx.scene.Scene;
 import javafx.scene.layout.FlowPane;
 
 import javafx.concurrent.Task;
+import javafx.util.Duration;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -62,6 +70,10 @@ class PaintMenuBar{
     private String[] color_theme;
     private final int SETTINGS_WINDOW_RATIO_X = 5;
     private final int SETTINGS_WINDOW_RATIO_Y = 3;
+    private Menu menu_file;
+    private Menu menu_edit;
+    private Menu menu_help;
+    private Timer timer_a;
 
     // Constructors
     PaintMenuBar(Canvas canvas, GraphicsContext gc, Stage primaryStage, PaintDrawActions drawactions) {
@@ -202,10 +214,33 @@ class PaintMenuBar{
     }
 
     void update_color(){
-        menubar.setStyle("-fx-background-color: " + settings_window.get_color()[0] + ";"+
-                " -fx-text-fill: " + settings_window.get_color()[3] + ";");
+        menubar.getStylesheets().clear();
+        menubar.getStylesheets().add(settings_window.getCSS());
+        menubar.getStyleClass().add(".menu-bar");
     }
 
+    /*
+    void setTimer(){
+        timer_a = new Timer();
+        timer_a.schedule(
+                new java.util.TimerTask(){
+                    @Override
+                    public void run(){
+                        try {
+                            Platform.runLater(() -> autoSave());
+                            System.out.println(settings_window.autosave_time);
+                            setTimer();
+                        }
+                        catch(NullPointerException e) {
+                            System.out.println("Auto Save Unsuccessful");
+                            System.out.println(settings_window.autosave_time);
+                            //Somehow bind this to the autosave time
+                            // it is just using the original default value
+                        }}}, settings_window.autosave_time);
+    }
+
+
+     */
     MenuBar setup_menubar() {
         // Use our custom filechooser class with our filters already applied
         PaintFileChooser chooser = new PaintFileChooser();
@@ -213,9 +248,9 @@ class PaintMenuBar{
         // Creates the object for the menu bar at the top
         menubar = new MenuBar();
         // Creates the pull down tab "File" for the menu bar
-        Menu menu_file = new Menu("_File");
-        Menu menu_edit = new Menu("_Edit");
-        Menu menu_help = new Menu("_Help");
+        menu_file = new Menu("_File");
+        menu_edit = new Menu("_Edit");
+        menu_help = new Menu("_Help");
         // Creates 3 new options and adds them under the menu -> file tab in sequence
         MenuItem menu_file_open = new MenuItem("_Open");
         menu_file_save_as = new MenuItem("Save As");
@@ -236,19 +271,14 @@ class PaintMenuBar{
         menu_file_save_as.setDisable(true);
         menu_file_save.setDisable(true);
 
+
+
+
+
         ///////////////////////////////////////////////////////////////////////////
         ///////////////// Timer Stuff
         ////////////////////////////////////////////////////////////////////////////
-        new java.util.Timer().schedule(
-                new java.util.TimerTask(){
-                    @Override
-                    public void run(){
-                        try {
-                            Platform.runLater(() -> autoSave());
-                        }
-                        catch(NullPointerException e) {
-                            System.out.println("Auto Save Unsuccessful");
-                        }}}, 5000, 5000 );
+        //setTimer();
 
         // Sets the action for the open button to open file chooser and select appropriate image
         menu_file_open.setOnAction(event -> {
@@ -258,22 +288,21 @@ class PaintMenuBar{
         // Sets the action for the save as button to open up the file chooser and save the image
         menu_file_save_as.setOnAction(event -> {
             saveAs();
+            //setTimer();
         });
 
         // Sets the action for the save button to save where it was saved last
         menu_file_save.setOnAction(event -> {
             save();
+            //setTimer();
         });
 
         // Sets the action to open up the settings menu
         menu_file_settings.setOnAction(event -> {
             settings_window.show();
             color_theme = settings_window.get_color();
-            //System.out.println(settings_window.get_color());
-            //window.set_color(settings_window.get_color());
-            //System.out.println(settings_window.get_check());
+            update_color();
         });
-        //test
 
         // Sets the action for the exit button to close the window
         menu_file_exit.setOnAction(event -> {
@@ -331,8 +360,9 @@ class PaintMenuBar{
             }
         });
 
+        update_color();
         // update the canvas and the gc with its changes
         window.set_Canvas(canvas);
-       // window.set_gc(gc);
+        // window.set_gc(gc);
         return menubar;
 }}

@@ -36,6 +36,7 @@ public class PaintSettingsWindow {
     private RadioButton darkmode_button;
     private RadioButton lightmode_button;
     private ChoiceBox<String> display_theme_choicebox;
+    private ChoiceBox<String> autosave_time_choicebox;
     //private String background_string = "#2D2D2D";
     private String[] color_theme;
     //private String font_string = "#EFEFEF";
@@ -50,10 +51,14 @@ public class PaintSettingsWindow {
     private final double INTERNAL_SPLIT_RATIO = 0.7;
     private final int VERTICAL_GAP = 5;
     private Label display;
+    private Label save;
+    Integer autosave_time = 1800;
+    CheckBox display_auto_save = new CheckBox();
 
     Stage getStage(){
         return settings_window;
     }
+
 
     PaintSettingsWindow() {
         String colors[][] = {{"#FFFFFF", "#F0F0F0", "#E6EBF0", "#000000", "#606366"},
@@ -72,12 +77,30 @@ public class PaintSettingsWindow {
         String[] display_theme_options = {"Light Mode", "Dark Mode", "Pumpkin Mode"};
         display_theme_choicebox = new ChoiceBox<String>(FXCollections.observableArrayList(display_theme_options));
 
+        String[] autosave_time_options = {"10 Seconds", "1 Minute", "5 Minutes", "10 Minutes", "30 Minutes", "1 Hour"};
+        autosave_time_choicebox = new ChoiceBox<String>(FXCollections.observableArrayList(autosave_time_options));
+
         display = new Label("Display---------------------------------");
         gridpane.add(display, currrow, currcol);
         currcol++;
         gridpane.add(display_theme_choicebox, currrow, currcol);
-
         display_theme_choicebox.setValue("Light Mode");
+        currcol++;
+
+        save = new Label("Auto Save----------------------------------");
+        gridpane.add(save, currrow, currcol);
+        currcol++;
+        gridpane.add(autosave_time_choicebox, currrow, currcol);
+        autosave_time_choicebox.setValue("30 Minutes");
+        currcol++;
+
+
+        display_auto_save.setText("Display Auto Save Timer");
+        display_auto_save.setSelected(true);
+
+        gridpane.add(display_auto_save, currrow, currcol);
+        currcol++;
+
 
         String[] settings_options = {"General", "Appearance", "Tools", "About", "Directory"};
 
@@ -106,7 +129,7 @@ public class PaintSettingsWindow {
 
 
         settings_scene = new Scene(splitpane, window_startup_width, window_startup_height);
-        settings_scene.getStylesheets().addAll("light.css", "dark.css", "pumpkin.css");
+        settings_scene.getStylesheets().add("light.css");
         settings_window = new Stage();
         settings_window.setTitle("Settings");
         settings_window.setScene(settings_scene);
@@ -136,11 +159,35 @@ public class PaintSettingsWindow {
             }
             update_color();
         });
-    }
 
-    void setup() {
-        System.out.println("hey");
-    }
+    autosave_time_choicebox.setOnAction(event -> {
+        String time_choice = autosave_time_choicebox.getValue();
+        switch (time_choice) {
+            case "10 Seconds":
+                autosave_time = 10;
+                break;
+            case "1 Minute":
+                autosave_time = 60;
+                break;
+            case "5 Minutes":
+                autosave_time = 300;
+                break;
+            case "10 Minutes":
+                autosave_time = 600;
+                break;
+            case "30 Minutes":
+                autosave_time = 1800;
+                break;
+            case "1 Hour":
+                autosave_time = 3600;
+                break;
+            default:
+                autosave_time = 1800;
+                break;
+        }
+        update_color();
+    });
+}
 
     void show() {
         settings_window.show();
@@ -161,12 +208,18 @@ public class PaintSettingsWindow {
             //button.setStyle("-fx-text-fill: " + font_string + ";");
         }
         display_theme_choicebox.getStyleClass().add(".choice-box");
+        autosave_time_choicebox.getStyleClass().add(".choice-box");
 
         display.setStyle("-fx-text-fill: " + color_theme[3] + ";");
+        save.setStyle("-fx-text-fill: " + color_theme[3] + ";");
     }
 
     String[] get_color(){
         return color_theme;
+    }
+
+    String getCSS(){
+        return settings_scene.getStylesheets().get(0);
     }
 
 }

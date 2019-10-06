@@ -2,6 +2,7 @@ package sample;
 
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
@@ -14,6 +15,8 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.Group;
+import javafx.scene.transform.Transform;
+
 import java.util.ArrayList;
 
 import java.util.Stack;
@@ -35,6 +38,7 @@ public class PaintDrawActions {
     private Group group;
     private Canvas tmp_canvas;
     WritableImage tmp_snap;
+    private double pixelScale = 1.0;
 
 
     void setImage(Image img){
@@ -144,7 +148,10 @@ public class PaintDrawActions {
 
         canvas.setOnMousePressed(e -> {
             tmp_snap = new WritableImage((int)canvas.getWidth(), (int)canvas.getHeight());
-            canvas.snapshot(null, tmp_snap);
+            SnapshotParameters spa = new SnapshotParameters();
+            spa.setDepthBuffer(false);
+            spa.setTransform(Transform.scale(pixelScale, pixelScale));
+            canvas.snapshot(spa, tmp_snap);
             if (drowbtn.isSelected()) {
                 gc.setStroke(cpLine.getValue());
                 gc.beginPath();
