@@ -98,15 +98,44 @@ class PaintMenuBar{
         WritableImage writableimage = new WritableImage((int)canvas.getWidth(), (int)canvas.getHeight());
         canvas.snapshot(null, writableimage);
         // Opens up the file explorer and stores your file name/ location in filechooser_file
+        System.out.println(filechooser_file);
+
+        String fileName_1 = filechooser_file.getName();
+        String fileExtension_start = fileName_1.substring(fileName_1.lastIndexOf(".") + 1, filechooser_file.getName().length());
+        //System.out.println(">> fileExtension" + fileExtension);
+
         filechooser_file = filechooser.showSaveDialog(primaryStage);
+
+        String fileName_2 = filechooser_file.getName();
+        String fileExtension_end = fileName_2.substring(fileName_2.lastIndexOf(".") + 1, filechooser_file.getName().length());
+
+        if (!fileExtension_end.equals(fileExtension_start)){
+            Alert alert_conv = new Alert(Alert.AlertType.WARNING);
+            alert_conv.setTitle("File Conversion Warning");
+            alert_conv.setHeaderText("Switching File Types May Result In Data Loss");
+            ButtonType alert_save_cancel = new ButtonType("Cancel");
+            ButtonType alert_save_save = new ButtonType("Save");
+            alert_conv.getButtonTypes().clear();
+            alert_conv.getButtonTypes().addAll(alert_save_cancel, alert_save_save);
+            Optional<ButtonType> option = alert_conv.showAndWait();
+            if (option.get() == null) {
+                alert_conv.close();
+            } else if (option.get() == alert_save_cancel){
+                alert_conv.close();
+            } else {
+                try {
+                    ImageIO.write(SwingFXUtils.fromFXImage(writableimage, null), "png", filechooser_file);
+                }
+                // Catches if there is no selected location to save but no action necessary
+                catch (IOException | IllegalArgumentException ignored) {
+                    // System.out.println("Catch");
+                }
+            }
+            //System.out.println("FILE CONVERSION");
+        }
+        // System.out.println(filechooser_file);
         // Saves the image to the desired location using the appropriate filters available
-        try {
-            ImageIO.write(SwingFXUtils.fromFXImage(writableimage, null), "png", filechooser_file);
-        }
-        // Catches if there is no selected location to save but no action necessary
-        catch (IOException | IllegalArgumentException ignored) {
-            System.out.println("Catch");
-        }
+
         // Since we have a file location we can just regularly save it
         menu_file_save.setDisable(false);
         image_saved = true;
@@ -143,23 +172,23 @@ class PaintMenuBar{
             Platform.exit();
         }
         else{
-            Alert alert_save = new Alert(Alert.AlertType.CONFIRMATION);
-            alert_save.setTitle("Exit Without Saving");
-            alert_save.setHeaderText("Are You Sure You Want To Exit Without Saving?");
-            ButtonType alert_save_close = new ButtonType("Close");
-            ButtonType alert_save_save = new ButtonType("Save");
-            alert_save.getButtonTypes().clear();
-            alert_save.getButtonTypes().addAll(alert_save_close, alert_save_save);
-            Optional<ButtonType> option = alert_save.showAndWait();
-            if (option.get() == null) {
-                alert_save.close();
-            } else if (option.get() == alert_save_close){
-                Platform.exit();
-            } else if (option.get() == alert_save_save) {
-                if (menu_file_save.isDisable()) {
-                    saveAs();
-                } else {save(); } }
-            else{ Platform.exit(); }
+                Alert alert_save = new Alert(Alert.AlertType.CONFIRMATION);
+                alert_save.setTitle("Exit Without Saving");
+                alert_save.setHeaderText("Are You Sure You Want To Exit Without Saving?");
+                ButtonType alert_save_close = new ButtonType("Close");
+                ButtonType alert_save_save = new ButtonType("Save");
+                alert_save.getButtonTypes().clear();
+                alert_save.getButtonTypes().addAll(alert_save_close, alert_save_save);
+                Optional<ButtonType> option = alert_save.showAndWait();
+                if (option.get() == null) {
+                    alert_save.close();
+                } else if (option.get() == alert_save_close){
+                    Platform.exit();
+                } else if (option.get() == alert_save_save) {
+                    if (menu_file_save.isDisable()) {
+                        saveAs();
+                    } else {save(); } }
+                else{ Platform.exit(); }
         }
     }
 
@@ -340,6 +369,11 @@ class PaintMenuBar{
                 catch(IllegalArgumentException e){
                     System.out.println("Error Changing Image Size");
                 }
+                if ((int)canvas.getHeight() == Integer.parseInt(textField_x.getText())){
+                    System.out.println("Unit Test Success, canvas width = text field");
+                } else {
+                    System.out.println("Unit Test Failure, canvas width != text field");
+                }
             });
         });
 
@@ -352,7 +386,7 @@ class PaintMenuBar{
         });
 
         menu_help_notes.setOnAction(event ->{
-            File file = new File("src/Release_Notes_V.1.0.3.txt");
+            File file = new File("src/Release_Notes_V.1.0.4.txt");
             try{
                 Desktop.getDesktop().open(file);
             } catch (IOException e){

@@ -87,3 +87,26 @@ Jacob Leazott Pain(t) Release Notes
 - Move Drawing Panel to top bar instead of side
 - Transparency
 - Layers
+======================================================================================================
+================ Version 1.0.4 =======================================================================
+================= Oct 6, 2019 =======================================================================
+======================================================================================================
+----------------- New Features -----------------------------------------------------------------------
+- Auto Save Functionality
+- Auto Save Timer displayed on screen, as well as setting to change it
+- JavaDoc Commenting
+- 3 seperate unit tests
+- Warning popup for file conversions.
+------------------- Changes --------------------------------------------------------------------------
+- Color changing modes now affect the menu bar and most buttons
+------------------ Bug Fixes -------------------------------------------------------------------------
+- N/A
+----------------- Known Issues -----------------------------------------------------------------------
+- Save and Save-as still seem to be grayed out even though they are still usable
+- Depending on screen resolution the snapshot eventually will decrease image quality
+----------------- Future Plans -----------------------------------------------------------------------
+- Move Drawing Panel to top bar instead of side
+- Transparency
+- Layers
+- Polka Dot Mode
+- Image icons for tools

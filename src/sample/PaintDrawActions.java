@@ -335,6 +335,17 @@ public class PaintDrawActions {
 
                 undoHistory.push(new Rectangle(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight()));
 
+                if (gc.getStroke() == cpLine.getValue()){
+                    System.out.println("Unit Test Success, stroke color == color picker value");
+                } else {
+                    System.out.println("Unit Test Fail, stroke color != color picker value");
+                }
+                if (gc.getFill() == cpFill.getValue()){
+                    System.out.println("Unit Test Success, fill color == color picker value");
+                } else {
+                    System.out.println("Unit Test Fail, fill color != color picker value");
+                }
+
             } else if (circlebtn.isSelected()) {
                 circ.setRadius((Math.abs(e.getX() - circ.getCenterX()) + Math.abs(e.getY() - circ.getCenterY())) / 2);
 
