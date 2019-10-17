@@ -39,6 +39,8 @@ public class PaintDrawActions {
     private Canvas tmp_canvas;
     WritableImage tmp_snap;
     private double pixelScale = 1.0;
+    //private ToggleButton[] toolsArr = null;
+    private ToggleGroup tools = new ToggleGroup();
 
 
     void setImage(Image img){
@@ -64,6 +66,16 @@ public class PaintDrawActions {
         return points;
     }
 
+    public String getSelected(){
+        String name = tools.getSelectedToggle().toString();
+        for(int i = name.length()-2; i > 0; i--){
+            if(name.charAt(i) == '\'') {
+                return (name.substring(i + 1, name.length() - 1));
+            }
+        }
+        return "N/A";
+    }
+
     VBox setup(Canvas canvas, GraphicsContext gc) {
         //AtomicReference<Canvas> tmp_canvas = null;
 
@@ -74,6 +86,7 @@ public class PaintDrawActions {
         Stack<Shape> redoHistory = new Stack();
         /* ----------btns---------- */
         ToggleButton selbtn = new ToggleButton("Selection");
+        ToggleButton cpybtn = new ToggleButton("Copy");
         ToggleButton movbtn = new ToggleButton("Move");
         ToggleButton drowbtn = new ToggleButton("Draw");
         ToggleButton rubberbtn = new ToggleButton("Erase");
@@ -86,10 +99,8 @@ public class PaintDrawActions {
         ToggleButton textbtn = new ToggleButton("Text");
         ToggleButton dropperbtn = new ToggleButton("Dropper");
 
-        ToggleButton[] toolsArr = {selbtn, movbtn, drowbtn, rubberbtn, linebtn, rectbtn, circlebtn, elpslebtn, tribtn,
+        ToggleButton[] toolsArr = {selbtn, cpybtn, movbtn, drowbtn, rubberbtn, linebtn, rectbtn, circlebtn, elpslebtn, tribtn,
                             polybtn, textbtn, dropperbtn};
-
-        ToggleGroup tools = new ToggleGroup();
 
         for (ToggleButton tool : toolsArr) {
             tool.setMinWidth(MIN_HEIGHT);
@@ -127,7 +138,7 @@ public class PaintDrawActions {
         open.setStyle("-fx-background-color: #80334d;");
 
         VBox btns = new VBox(2*TOOL_BAR_H_GAP);
-        btns.getChildren().addAll(selbtn, movbtn, drowbtn, rubberbtn, linebtn, rectbtn, circlebtn, elpslebtn, tribtn, polybtn,
+        btns.getChildren().addAll(selbtn, cpybtn, movbtn, drowbtn, rubberbtn, linebtn, rectbtn, circlebtn, elpslebtn, tribtn, polybtn,
                 textbtn, text,dropperbtn, line_color, cpLine, fill_color, cpFill, line_width, slider, undo, redo);
         btns.setPadding(new Insets(TOOL_BAR_H_GAP));
         btns.setStyle("-fx-background-color: #999");
@@ -139,6 +150,7 @@ public class PaintDrawActions {
         Line line = new Line();
         Rectangle rect = new Rectangle();
         Rectangle selrect = new Rectangle();
+        Rectangle cpyrect = new Rectangle();
         selrect.setCursor(Cursor.MOVE);
         Circle circ = new Circle();
         Ellipse elps = new Ellipse();
@@ -209,7 +221,13 @@ public class PaintDrawActions {
                 gc.setFill(Paint.valueOf("#FFFFFF"));
                 selrect.setX(e.getX());
                 selrect.setY(e.getY());
-                System.out.println("WOrks");
+                //System.out.println("WOrks");
+            } else if (cpybtn.isSelected()){
+                //gc.setStroke(cpLine.getValue());
+                //Paint fill = Paint.valueOf("#000000");
+                //gc.setFill(Paint.valueOf("#FFFFFF"));
+                selrect.setX(e.getX());
+                selrect.setY(e.getY());
             } else if (tribtn.isSelected()){
                 triangle.getPoints().add(0, e.getX());
                 triangle.getPoints().add(1, e.getY());
@@ -397,6 +415,28 @@ public class PaintDrawActions {
 
                 selimg = new WritableImage(reader, (int)selrect.getX(), (int)selrect.getY(),
                         (int)(selrect.getWidth()), (int)(selrect.getHeight()));
+            } else if (cpybtn.isSelected()){
+                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                cpyrect.setWidth(Math.abs((e.getX() - cpyrect.getX())));
+                cpyrect.setHeight(Math.abs((e.getY() - cpyrect.getY())));
+                //rect.setX((rect.getX() > e.getX()) ? e.getX(): rect.getX());
+                if (cpyrect.getX() > e.getX()) {
+                    cpyrect.setX(e.getX());
+                }
+                //rect.setY((rect.getY() > e.getY()) ? e.getY(): rect.getY());
+                if (cpyrect.getY() > e.getY()) {
+                    cpyrect.setY(e.getY());
+                }
+
+                WritableImage writableimage = new WritableImage((int)canvas.getWidth(), (int)canvas.getHeight());
+                canvas.snapshot(null, writableimage);
+
+                //gc.fillRect(selrect.getX(), selrect.getY(), selrect.getWidth(), selrect.getHeight());
+
+                PixelReader reader = writableimage.getPixelReader();
+
+                selimg = new WritableImage(reader, (int)cpyrect.getX(), (int)cpyrect.getY(),
+                        (int)(cpyrect.getWidth()), (int)(cpyrect.getHeight()));
 
             } else if (movbtn.isSelected()) {
                 gc.drawImage(selimg, e.getX(), e.getY());

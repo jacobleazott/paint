@@ -317,13 +317,11 @@ class PaintMenuBar{
         // Sets the action for the save as button to open up the file chooser and save the image
         menu_file_save_as.setOnAction(event -> {
             saveAs();
-            //setTimer();
         });
 
         // Sets the action for the save button to save where it was saved last
         menu_file_save.setOnAction(event -> {
             save();
-            //setTimer();
         });
 
         // Sets the action to open up the settings menu
@@ -386,7 +384,7 @@ class PaintMenuBar{
         });
 
         menu_help_notes.setOnAction(event ->{
-            File file = new File("src/Release_Notes_V.1.0.4.txt");
+            File file = new File("src/Release_Notes_V.1.0.5.txt");
             try{
                 Desktop.getDesktop().open(file);
             } catch (IOException e){

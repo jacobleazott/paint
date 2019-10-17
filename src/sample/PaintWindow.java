@@ -68,7 +68,7 @@ class PaintWindow {
     private Timeline timeline;
     private Label time_label = new Label();
     private Integer time_seconds = start_time;
-
+    private ToolTimer tooltimer = new ToolTimer();;
 
 
     ScrollPane scrollpane;
@@ -130,6 +130,13 @@ class PaintWindow {
         }
     }
 
+    String setTool() {
+        String tmp = drawactions.getSelected();
+        Label tool = new Label(tmp);
+        borderpane.setBottom(tool);
+        return tmp;
+    }
+
     void setupTimer(){
         if (timeline != null){
             timeline.stop();
@@ -155,6 +162,9 @@ class PaintWindow {
 
 
     Scene setup_Scene(){
+
+        tooltimer.beginTimer("Standby");
+
         // Initializes our canvas to where we will draw and the gc which is the handler for the graphics
         canvas = new Canvas(INITIAL_CANVAS_SIZE_X, INITIAL_CANVAS_SIZE_Y);
         gc = canvas.getGraphicsContext2D();
@@ -205,10 +215,30 @@ class PaintWindow {
         time_label.setText(time_seconds.toString());
         resetTimer();
 
+        borderpane.setOnMousePressed(event ->{
+            //setTool();
+            tooltimer.switchTool(setTool());
+        });
+
+        draw_buttons.setOnMousePressed(event ->{
+            tooltimer.switchTool(setTool());
+           //setTool();
+        });
+
         paintmenubar.get_settings().getStage().setOnCloseRequest(event ->{
             update_color();
             paintmenubar.update_color();
             resetTimer();
+        });
+
+        menubar.getMenus().get(0).getItems().get(1).setOnAction(event ->{
+            resetTimer();
+            paintmenubar.saveAs();
+        });
+
+        menubar.getMenus().get(0).getItems().get(2).setOnAction(event ->{
+            resetTimer();
+            paintmenubar.save();
         });
 
         // Action event to allow zoom functionality
@@ -240,6 +270,10 @@ class PaintWindow {
                 scrollpane.setVvalue((valY + adjustment.getY()) / (groupBounds.getHeight() - viewportBounds.getHeight()));
                 //System.out.println(gr.getChildren());
         }});
+
+        primaryStage.setOnCloseRequest(event ->{
+            tooltimer.end();
+        });
 
         // Keyboard shortcuts
         KeyCombination kc_ctrl_s = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
