@@ -1,3 +1,10 @@
+/**
+ * This file is responsible for creating our filechooser object which gives us available file types
+ *
+ * @author  Jacob Leazott
+ * @version 1.0.6
+ * @since   2019-10-06
+ **/
 package sample;
 
 import javafx.stage.FileChooser;

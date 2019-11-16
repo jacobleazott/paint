@@ -6,9 +6,9 @@
  * The rest of the program is separated into the other classes for better file management and readability
  *
  * @author  Jacob Leazott
- * @version 1.0.5
+ * @version 1.0.6
  * @since   2019-10-06
- */
+ **/
 package sample;
 
 import javafx.application.Application;
@@ -16,7 +16,7 @@ import javafx.stage.Stage;
 
 public class PaintMain extends Application {
 
-    String version_number = "Pain(t) V.1.0.5";
+    String version_number = "Pain(t) V.1.0.6";
 
     public void start(Stage primaryStage){
         // Sets the title of the window

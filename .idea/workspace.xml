@@ -1,22 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AnalysisUIOptions">
+    <option name="CUSTOM_SCOPE_NAME" value="Current File" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="cdb932d9-7e58-4d94-93a9-e7b232ef17da" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/out/production/paint/sample/ToolTimer.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/sample/ToolTimer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/toolTimes.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/paint/Release_Notes_V.1.0.3.txt" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paint/Release_Notes_V.1.0.4.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/paint/Release_Notes_V.1.0.4.txt" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paint/Release_Notes_V.1.0.5.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/paint/sample/PaintDrawActions.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paint/sample/PaintDrawActions.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/paint/sample/PaintFileChooser.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paint/sample/PaintFileChooser.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/paint/sample/PaintMain.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paint/sample/PaintMain.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/paint/sample/PaintMenuBar.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paint/sample/PaintMenuBar.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/paint/sample/PaintSettingsWindow.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paint/sample/PaintSettingsWindow.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/paint/sample/PaintWindow$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paint/sample/PaintWindow$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/paint/sample/PaintWindow.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paint/sample/PaintWindow.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/paint/sample/ToolTimer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/paint/sample/PaintToolTimer.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Release_Notes_V.1.0.3.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Release_Notes_V.1.0.5.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/Release_Notes_V.1.0.5.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/sample/PaintDrawActions.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/sample/PaintDrawActions.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/sample/PaintFileChooser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/sample/PaintFileChooser.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/sample/PaintMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/sample/PaintMain.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/sample/PaintMenuBar.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/sample/PaintMenuBar.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/sample/PaintSettingsWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/sample/PaintSettingsWindow.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/sample/PaintWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/sample/PaintWindow.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/sample/ToolTimer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/sample/PaintToolTimer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/stuff.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tmp" beforeDir="false" afterPath="$PROJECT_DIR$/tmp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/toolTimes.log" beforeDir="false" afterPath="$PROJECT_DIR$/toolTimes.log" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -107,8 +118,11 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="dynamic.classpath" value="false" />
+    <property name="project.structure.last.edited" value="SDKs" />
+    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.side.proportion" value="0.0" />
     <property name="recentsLimit" value="5" />
-    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+    <property name="settings.editor.selected.configurable" value="terminal" />
     <property name="settings.editor.splitter.proportion" value="0.243604" />
   </component>
   <component name="RunDashboard">
@@ -293,5 +307,15 @@
   <component name="VcsManagerConfiguration">
     <option name="OFFER_MOVE_TO_ANOTHER_CHANGELIST_ON_PARTIAL_COMMIT" value="true" />
     <option name="INCLUDE_TEXT_INTO_SHELF" value="false" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/sample/test.java</url>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

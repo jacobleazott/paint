@@ -1,11 +1,19 @@
+/**
+ * This file is responsible for housing everything for our program by creating the window itself
+ * It is also responsible for
+ * Threading for the autosave timer
+ * Keyboard shortcuts
+ * As well as wrapping everything together
+ *
+ * @author  Jacob Leazott
+ * @version 1.0.6
+ * @since   2019-10-06
+ **/
 package sample;
 
-import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.*;
@@ -27,14 +35,7 @@ import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.layout.Region;
 import javafx.scene.control.MenuBar;
-import javafx.scene.shape.*;
-import javafx.scene.image.WritableImage;
 import javafx.util.Duration;
-
-
-import java.lang.reflect.InvocationTargetException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Timer;
 
 // Holds and initializes all of the main internal window aspects
@@ -60,7 +61,6 @@ class PaintWindow {
     private Group gr = new Group();
     private Group group;
     private VBox draw_buttons;
-    //Label time_label = new Label();
     private Timer timer_a;
     private AnimationTimer timer_b;
     private Integer frame = 0;
@@ -68,7 +68,7 @@ class PaintWindow {
     private Timeline timeline;
     private Label time_label = new Label();
     private Integer time_seconds = start_time;
-    private ToolTimer tooltimer = new ToolTimer();;
+    private PaintToolTimer tooltimer = new PaintToolTimer();;
 
 
     ScrollPane scrollpane;
@@ -83,40 +83,25 @@ class PaintWindow {
     void set_Canvas(Canvas canvas){
         this.canvas = canvas; }
 
-    void set_gc(GraphicsContext gc){
-        this.gc = gc; }
-
-    void set_color(String background_string){
-        this.background_string = background_string;
-        System.out.println(background_string);
-        update_color();
-    }
-
+    //Updates the color theme of the window
     void update_color(){
         borderpane.getStylesheets().clear();
         borderpane.getStylesheets().add(paintmenubar.get_settings().getCSS());
         borderpane.getStyleClass().add(".borderpane");
         borderpane.setId("custom-label");
-        //borderpane.setStyle("-fx-background-color: " + color_theme[1] + ";");
         draw_buttons.getStylesheets().clear();
         draw_buttons.getStylesheets().add(paintmenubar.get_settings().getCSS());
-        //draw_buttons.getStyleClass().add("#custom-button");
-        //draw_buttons.setId("custom-button");
         draw_buttons.setId("custom-label");
-        //draw_buttons.getStyleClass().add("custom-label");
-        //draw_buttons.setStyle("-fx-background-color: #111111;");
         for (int i = 0; i < draw_buttons.getChildren().size(); i++){
-            //draw_buttons.getChildren().get(i).setId("custom-button");
             draw_buttons.getChildren().get(i).getStyleClass().add(".button");
             if (draw_buttons.getChildren().get(i) instanceof Label){
                 draw_buttons.getChildren().get(i).getStyleClass().clear();
                 draw_buttons.getChildren().get(i).setId("custom-label");
             }
-            //draw_buttons.getChildren().get(i).getStyleClass().add("#custom-button");
-            //System.out.println(draw_buttons.getChildren().get(i));
         }
     }
 
+    // Resets the timer for autosave
     void resetTimer(){
         start_time = paintmenubar.get_settings().autosave_time;
         setupTimer();
@@ -130,6 +115,7 @@ class PaintWindow {
         }
     }
 
+    // Gives current tool to be used for displaying in the bottom left
     String setTool() {
         String tmp = drawactions.getSelected();
         Label tool = new Label(tmp);
@@ -137,12 +123,12 @@ class PaintWindow {
         return tmp;
     }
 
+    // Sets up the timer for autosave
     void setupTimer(){
         if (timeline != null){
             timeline.stop();
         }
         time_seconds = start_time;
-
         time_label.setText(time_seconds.toString());
         timeline = new Timeline();
         timeline.setCycleCount(Timeline.INDEFINITE);
@@ -180,10 +166,7 @@ class PaintWindow {
         //Wrappers for our layouts to best optimize viewing
         Region target = new StackPane(canvas);
         group = new Group(target);
-        //Group g = new Group();
         borderpane.setCenter(group);
-        //borderpane.setRight(gr);
-        //borderpane.setLeft(drawactions.setup(canvas, gc));
         scrollpane = new ScrollPane(borderpane);
         scrollpane.setFitToWidth(true);
         scrollpane.setFitToHeight(true);
@@ -192,7 +175,6 @@ class PaintWindow {
         outerpane.setCenter(scrollpane);
         draw_buttons = drawactions.setup(canvas, gc);
         outerpane.setLeft(draw_buttons);
-        //scrollpane.setPannable(true);
 
         VBox window = new VBox(menubar, outerpane);
 
@@ -209,9 +191,6 @@ class PaintWindow {
         borderpane.prefWidthProperty().bind(main_scene.widthProperty());
         borderpane.prefHeightProperty().bind(main_scene.heightProperty());
 
-
-
-//////////////////////////////////////////////////////////////////////////
         time_label.setText(time_seconds.toString());
         resetTimer();
 

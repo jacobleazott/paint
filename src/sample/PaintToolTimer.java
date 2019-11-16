@@ -1,7 +1,12 @@
+/**
+ * This file is responsible for implementing our tool timer logger which stores information about what tools the user
+ * is using and for how long.
+ *
+ * @author  Jacob Leazott
+ * @version 1.0.6
+ * @since   2019-10-06
+ **/
 package sample;
-
-import javafx.beans.Observable;
-import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -10,9 +15,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observer;
 
-public class ToolTimer implements Runnable {
+public class PaintToolTimer implements Runnable {
     private String drawMode, newLog;
     private long startTime,endTime;
     private double totTime;

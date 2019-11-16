@@ -1,10 +1,16 @@
+/**
+ * This file is responsible for creating the menubar located at the top of the program and is responsible for
+ * Opening documents
+ * Saving documents
+ * As well as any associated actions located within the menubar itself
+ *
+ * @author  Jacob Leazott
+ * @version 1.0.6
+ * @since   2019-10-06
+ **/
 package sample;
 
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -21,7 +27,6 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.WritableImage;
-import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import javafx.geometry.*;
 import javafx.stage.Stage;
@@ -29,21 +34,10 @@ import javafx.stage.Screen;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ButtonType;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Optional;
 import javafx.scene.Scene;
 import javafx.scene.layout.FlowPane;
-
-import javafx.concurrent.Task;
-import javafx.util.Duration;
-
 import java.util.Timer;
-import java.util.TimerTask;
-
-
 
 // Creates and initializes the menu bar with their associated actions
 class PaintMenuBar{
@@ -66,7 +60,6 @@ class PaintMenuBar{
     private final int HORIZONTAL_GAP = 10;
     private final int CANVAS_ORIGIN_X = 0;
     private final int CANVAS_ORIGIN_Y = 0;
-    //private String background_string = "#EEEEEE";
     private String[] color_theme;
     private final int SETTINGS_WINDOW_RATIO_X = 5;
     private final int SETTINGS_WINDOW_RATIO_Y = 3;
@@ -85,6 +78,7 @@ class PaintMenuBar{
 
     PaintMenuBar() {}
 
+    // getters and setters
     void setImageSaved(boolean save){
         image_saved = save;
     }
@@ -93,6 +87,9 @@ class PaintMenuBar{
         return img;
     }
 
+    //Methods
+
+    // Opens up file chooser so we can tell where our image should be saved/ appropriate file types
     void saveAs(){
         filechooser.setTitle("Save Image");
         WritableImage writableimage = new WritableImage((int)canvas.getWidth(), (int)canvas.getHeight());
@@ -102,7 +99,6 @@ class PaintMenuBar{
 
         String fileName_1 = filechooser_file.getName();
         String fileExtension_start = fileName_1.substring(fileName_1.lastIndexOf(".") + 1, filechooser_file.getName().length());
-        //System.out.println(">> fileExtension" + fileExtension);
 
         filechooser_file = filechooser.showSaveDialog(primaryStage);
 
@@ -128,19 +124,15 @@ class PaintMenuBar{
                 }
                 // Catches if there is no selected location to save but no action necessary
                 catch (IOException | IllegalArgumentException ignored) {
-                    // System.out.println("Catch");
                 }
             }
-            //System.out.println("FILE CONVERSION");
         }
-        // System.out.println(filechooser_file);
-        // Saves the image to the desired location using the appropriate filters available
-
         // Since we have a file location we can just regularly save it
         menu_file_save.setDisable(false);
         image_saved = true;
     }
 
+    // Function to save our image if we have already specified a save location
     void save(){
         try{
             WritableImage writableimage = new WritableImage((int)canvas.getWidth(), (int)canvas.getHeight());
@@ -154,6 +146,7 @@ class PaintMenuBar{
         image_saved = true;
     }
 
+    // Function to automatically save our file to a tmp file in our root directory
     void autoSave(){
         try{
             WritableImage writableimage = new WritableImage((int)canvas.getWidth(), (int)canvas.getHeight());
@@ -167,7 +160,8 @@ class PaintMenuBar{
         }
     }
 
-    void closeAlert(){
+    // Alert that is created to make sure you have saved before exiting
+    private void closeAlert(){
         if (image_saved){
             Platform.exit();
         }
@@ -192,6 +186,7 @@ class PaintMenuBar{
         }
     }
 
+    // Opens filechooser to let you open up desired file
     void open(){
         filechooser.setTitle("Open Image");
         // Opens up the file explorer and stores your file name/ location in filechooser_file
@@ -200,27 +195,13 @@ class PaintMenuBar{
         try {
             InputStream io = new FileInputStream(filechooser_file);
             img = new Image(io);
-            // Sets Canvas to image specs
             canvas.setHeight(img.getHeight());
             canvas.setWidth(img.getWidth());
-            // Displays the image in the upper left corner of canvas
             gc.drawImage(img, CANVAS_ORIGIN_X, CANVAS_ORIGIN_Y);
-            // Makes sure the canvas is large enough to display our image properly but restricts to screen size
-            /*
-            if (primaryStage.getHeight() < canvas.getHeight() && primaryScreenBounds.getHeight() > canvas.getHeight()){
-                primaryStage.setHeight(canvas.getHeight() + window.scrollpane.getViewportBounds().getWidth());
-            }
-            if (primaryStage.getWidth() < canvas.getWidth() && primaryScreenBounds.getWidth() > canvas.getWidth()){
-                primaryStage.setWidth(canvas.getWidth() + window.scrollpane.getViewportBounds().getHeight());
-            }
-             */
-            // We have opened an image therefore we can save use save as
             menu_file_save_as.setDisable(false);
             menu_file_save.setDisable(true);
             image_saved = false;
             drawactions.setImage(img);
-            //PaintDrawActions tmp = new PaintDrawActions();
-            //tmp.setImage(img);
         }
         // Catches if there is no image selected but it is fine to just close the file explorer and move on
         catch (NullPointerException ignored) {}
@@ -238,38 +219,12 @@ class PaintMenuBar{
         return settings_window;
     }
 
-    String[] get_color(){
-        return settings_window.get_color();
-    }
-
     void update_color(){
         menubar.getStylesheets().clear();
         menubar.getStylesheets().add(settings_window.getCSS());
         menubar.getStyleClass().add(".menu-bar");
     }
 
-    /*
-    void setTimer(){
-        timer_a = new Timer();
-        timer_a.schedule(
-                new java.util.TimerTask(){
-                    @Override
-                    public void run(){
-                        try {
-                            Platform.runLater(() -> autoSave());
-                            System.out.println(settings_window.autosave_time);
-                            setTimer();
-                        }
-                        catch(NullPointerException e) {
-                            System.out.println("Auto Save Unsuccessful");
-                            System.out.println(settings_window.autosave_time);
-                            //Somehow bind this to the autosave time
-                            // it is just using the original default value
-                        }}}, settings_window.autosave_time);
-    }
-
-
-     */
     MenuBar setup_menubar() {
         // Use our custom filechooser class with our filters already applied
         PaintFileChooser chooser = new PaintFileChooser();
@@ -299,15 +254,6 @@ class PaintMenuBar{
         // This disables our save function since when we launch program there is nothing to save
         menu_file_save_as.setDisable(true);
         menu_file_save.setDisable(true);
-
-
-
-
-
-        ///////////////////////////////////////////////////////////////////////////
-        ///////////////// Timer Stuff
-        ////////////////////////////////////////////////////////////////////////////
-        //setTimer();
 
         // Sets the action for the open button to open file chooser and select appropriate image
         menu_file_open.setOnAction(event -> {
@@ -395,6 +341,5 @@ class PaintMenuBar{
         update_color();
         // update the canvas and the gc with its changes
         window.set_Canvas(canvas);
-        // window.set_gc(gc);
         return menubar;
 }}
